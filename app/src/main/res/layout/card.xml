@@ -12,11 +12,10 @@
         android:layout_margin="8dp"
         card_view:cardCornerRadius="4dp">
 
-        <TextView
+        <ImageView
             android:id="@+id/iv_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="32sp" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
         <!--
             android:src="@mipmap/ic_launcher"
             android:layout_width="match_parent"

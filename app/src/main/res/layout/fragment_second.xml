@@ -22,7 +22,13 @@ tools:context="com.example.madcamp.MainActivity">
     android:layout_gravity="bottom|end"
     android:layout_margin="@dimen/fab_margin"
     android:visibility="visible"
-    app:srcCompat="@drawable/image" />
+     />
+    <ImageView
+        android:id="@+id/iv_photo3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_launcher_background"
+        android:layout_gravity="bottom"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

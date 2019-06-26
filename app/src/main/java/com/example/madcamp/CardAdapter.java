@@ -14,17 +14,17 @@ import java.util.ArrayList;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
-    private ArrayList<String> mData = null ;
+    private ArrayList<Integer> mData = null ;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView imageView1;
+        ImageView imageView1;
 
         ViewHolder(View itemView) {
             super(itemView);
             imageView1 = itemView.findViewById(R.id.iv_photo);
         }
     }
-    CardAdapter(ArrayList<String> list) {
+    CardAdapter(ArrayList<Integer> list) {
         mData = list ;
     }
 
@@ -44,8 +44,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull CardAdapter.ViewHolder holder, int position) {
-        String text = mData.get(position) ;
-        holder.imageView1.setText(text) ;
+        //String text = mData.get(position) ;
+        //holder.imageView1.setText(text) ;
     }
 
     @Override
