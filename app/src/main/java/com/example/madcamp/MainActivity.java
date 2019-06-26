@@ -6,15 +6,21 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.madcamp.ui.main.SectionsPagerAdapter;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,9 +30,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(sectionsPagerAdapter);
+        viewPager.setAdapter(viewPagerAdapter);
         TabLayout tabs= findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
@@ -61,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void changeView(int index) {
-        TextView textView1 = (TextView) findViewById(R.id.text1) ;
-        TextView textView2 = (TextView) findViewById(R.id.text2) ;
-        TextView textView3 = (TextView) findViewById(R.id.text3) ;
+        TextView textView1 = findViewById(R.id.text1) ;
+        TextView textView2 = findViewById(R.id.text2) ;
+        TextView textView3 = findViewById(R.id.text3) ;
         switch (index) {
             case 0 :
                 textView1.setVisibility(View.VISIBLE) ;
