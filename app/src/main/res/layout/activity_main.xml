@@ -55,7 +55,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorWhite"
+                android:background="@color/colorAccent"
                 android:gravity="center"
                 android:visibility="visible"
                 android:id="@+id/text1"
@@ -71,13 +71,13 @@
                 android:text="TEXT 2" />
 
             <TextView
+                android:id="@+id/text3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#009688"
                 android:gravity="center"
-                android:visibility="invisible"
-                android:id="@+id/text3"
-                android:text="TEXT 3" />
+                android:text="TEXT 3"
+                android:visibility="invisible" />
 
         </FrameLayout>
 
