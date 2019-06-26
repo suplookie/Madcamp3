@@ -54,21 +54,25 @@ public class MainActivity extends AppCompatActivity {
         TextView textView1 = findViewById(R.id.text1) ;
         TextView textView2 = findViewById(R.id.text2) ;
         TextView textView3 = findViewById(R.id.text3) ;
+        FloatingActionButton fab = findViewById(R.id.fab);
         switch (index) {
             case 0 :
                 textView1.setVisibility(View.VISIBLE) ;
                 textView2.setVisibility(View.INVISIBLE) ;
                 textView3.setVisibility(View.INVISIBLE) ;
+                fab.hide();
                 break ;
             case 1 :
                 textView1.setVisibility(View.INVISIBLE) ;
                 textView2.setVisibility(View.VISIBLE) ;
                 textView3.setVisibility(View.INVISIBLE) ;
+                fab.show();
                 break ;
             case 2 :
                 textView1.setVisibility(View.INVISIBLE) ;
                 textView2.setVisibility(View.INVISIBLE) ;
                 textView3.setVisibility(View.VISIBLE) ;
+                fab.hide();
                 break ;
         }
     }
