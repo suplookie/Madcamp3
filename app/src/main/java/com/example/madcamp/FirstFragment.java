@@ -60,13 +60,8 @@ public class FirstFragment extends Fragment {
     private void initImageBitmaps(){
         Log.d(TAG, "iniImageBitmaps : preparing bitmaps.");
 
-        mImageUrls.add("https://i.imgur.com/m7oaT8B.jpg");
-        mNames.add("Min");
 
-        mImageUrls.add("https://i.redd.it/o9r1u7xfse631.jpg");
-        mNames.add("Hannah");
-
-        mImageUrls.add("https://i.redd.it/1g2a7xs21n631.jpg");
+        mImageUrls.add("https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260");
         mNames.add("Kevin");
 
         mImageUrls.add("https://i.redd.it/228zdgyagn631.jpg");
@@ -77,6 +72,15 @@ public class FirstFragment extends Fragment {
 
         mImageUrls.add("https://i.redd.it/raiqbbac1h631.jpg");
         mNames.add("Joseph");
+
+        mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
+        mNames.add("James");
+
+        mImageUrls.add("https://i.redd.it/raiqbbac1h631.jpg");
+        mNames.add("James");
+
+        mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
+        mNames.add("James");
 
         mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
         mNames.add("James");
