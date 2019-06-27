@@ -1,15 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
- <androidx.recyclerview.widget.RecyclerView
-     android:id="@+id/recyclerv_view"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     android:layout_marginTop="135dp">
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recyclerv_view"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:layout_marginTop="135dp">
 
- </androidx.recyclerview.widget.RecyclerView>
+  </androidx.recyclerview.widget.RecyclerView>
 
-</LinearLayout>
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/add_contact"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentEnd="true"
+      app:elevation="6dp"
+      app:pressedTranslationZ="12dp"
+      android:layout_margin="10dp"
+      android:clickable="true"
+      android:src="@drawable/baseline_add_white_18dp" />
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/read_contact"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentEnd="true"
+      app:elevation="6dp"
+      app:pressedTranslationZ="12dp"
+      android:layout_margin="10dp"
+      android:clickable="true"
+      android:src="@drawable/baseline_contacts_white_18dp" />
+
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+     android:id="@+id/menu"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentBottom="true"
+     android:layout_alignParentEnd="true"
+     app:elevation="6dp"
+     app:pressedTranslationZ="12dp"
+     android:layout_margin="10dp"
+     android:clickable="true"
+     android:src="@drawable/baseline_menu_white_18dp" />
+
+
+
+
+
+
+
+</RelativeLayout>
