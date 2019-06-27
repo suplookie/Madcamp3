@@ -2,8 +2,6 @@ package com.example.madcamp;
 
         import android.Manifest;
         import android.content.Intent;
-        import android.database.Cursor;
-        import android.graphics.BitmapFactory;
         import android.net.Uri;
         import android.os.Bundle;
         import android.os.Environment;
@@ -16,6 +14,7 @@ package com.example.madcamp;
         import android.widget.Toast;
 
         import androidx.annotation.NonNull;
+        import androidx.core.content.FileProvider;
         import androidx.fragment.app.Fragment;
         import androidx.recyclerview.widget.LinearLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
@@ -34,10 +33,14 @@ public class SecondFragment extends Fragment {
 
     private static final int PICK_FROM_ALBUM = 1;
     private static final int PICK_FROM_CAMERA= 2;
-    private ArrayList<Integer> list;
+    private ArrayList<Uri> list;
     private String mCurrentPhotoPath;
     private ImageView img1;
-    FloatingActionButton fab;
+    private FloatingActionButton fab_img;
+    private FloatingActionButton fab_cam;
+    private CardAdapter adapter;
+    private boolean isMenuOpen = false;
+    private Uri imgUri;
 
     public static SecondFragment newInstance() {
         Bundle args = new Bundle();
@@ -49,29 +52,55 @@ public class SecondFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
+        View cardview = inflater.inflate(R.layout.card, container, false);
         tedPermission();
 
         list = new ArrayList<>();
+        /*
+        for(int i = 0; i < 3; i++) {
+            list.add(0);
+        }*/
 
-        img1 = view.findViewById(R.id.iv_photo);
+        img1 = cardview.findViewById(R.id.card_image);
+        //img1 = view.findViewById(R.id.android);
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
-        RecyclerView recyclerView = view.findViewById(R.id.recycle2) ;
+        final RecyclerView recyclerView = view.findViewById(R.id.recycle2) ;
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity())) ;
 
         // 리사이클러뷰에 CardAdapter 객체 지정.
-        final CardAdapter adapter = new CardAdapter(list) ;
+        adapter = new CardAdapter(list) ;
 
 
         //fab click시 앨범에서 이미지 가져와 리스트에 추가
-        fab = view.findViewById(R.id.fab);
+        FloatingActionButton fab = view.findViewById(R.id.fab);
+        fab_img = view.findViewById(R.id.fab_img);
+        fab_cam = view.findViewById(R.id.fab_cam);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectAlbum();
-                list.add(0);
-                (adapter).notifyDataSetChanged();
+                menuOpen();
+            }
+        });
 
+        fab_img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectAlbum();
+                (adapter).notifyDataSetChanged();
+                recyclerView.smoothScrollToPosition(Integer.MAX_VALUE);
+                menuClose();
+            }
+        });
+
+        fab_cam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //takePhoto();
+                //(adapter).notifyDataSetChanged();
+                recyclerView.smoothScrollToPosition(Integer.MAX_VALUE);
+                menuClose();
             }
         });
 
@@ -108,6 +137,30 @@ public class SecondFragment extends Fragment {
 
     }
 
+    public void takePhoto(){
+        // 촬영 후 이미지 가져옴
+        String state = Environment.getExternalStorageState();
+        if(Environment.MEDIA_MOUNTED.equals(state)){
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if(intent.resolveActivity(getActivity().getPackageManager())!=null){
+                File photoFile = null;
+                try{
+                    photoFile = createImageFile();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+                if(photoFile!=null){
+                    Uri providerURI = FileProvider.getUriForFile(getContext(),getActivity().getPackageName(),photoFile);
+                    imgUri = providerURI;
+                    intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, providerURI);
+                    startActivityForResult(intent, PICK_FROM_CAMERA);
+                }
+            }
+        }else{
+            Log.v("알림", "저장공간에 접근 불가능");
+            return;
+        }
+    }
 
     private void selectAlbum(){
         //앨범 열기
@@ -132,6 +185,11 @@ public class SecondFragment extends Fragment {
                         //이미지뷰에 이미지 셋팅
                         img1.setImageURI(photoURI);
 
+                        if (!list.add(photoURI)) {
+                            Toast.makeText(getActivity(), "list add failed", Toast.LENGTH_SHORT).show();
+                        }
+                        adapter.notifyDataSetChanged();
+
                         //cropImage();
 
                     }catch (Exception e){
@@ -141,7 +199,35 @@ public class SecondFragment extends Fragment {
                 }
                 break;
             }
+            case PICK_FROM_CAMERA: {
+                //촬영
+                try{
+                    Log.v("알림", "FROM_CAMERA 처리");
+                    galleryAddPic();
+                //이미지뷰에 이미지셋팅
+                    img1.setImageURI(imgUri);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                break;
+            }
         }
+
+    }
+
+    public void galleryAddPic(){
+
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+
+        File f = new File(mCurrentPhotoPath);
+
+        Uri contentUri = Uri.fromFile(f);
+
+        mediaScanIntent.setData(contentUri);
+
+        Objects.requireNonNull(getActivity()).sendBroadcast(mediaScanIntent);
+
+        Toast.makeText(getContext(),"사진이 저장되었습니다",Toast.LENGTH_SHORT).show();
 
     }
 
@@ -159,6 +245,27 @@ public class SecondFragment extends Fragment {
 
         return imageFile;
 
+    }
+
+    private void menuOpen(){
+        if(!isMenuOpen){
+            fab_img.animate().translationY(-getResources().getDimension(R.dimen.add_contacts));
+            fab_cam.animate().translationY(-getResources().getDimension(R.dimen.read_contacts));
+
+            isMenuOpen = true;
+        } else {
+            fab_img.animate().translationY(0);
+            fab_cam.animate().translationY(0);
+
+            isMenuOpen = false;
+        }
+    }
+
+    private void menuClose(){
+        fab_img.animate().translationY(0);
+        fab_cam.animate().translationY(0);
+
+        isMenuOpen = false;
     }
 
 }
