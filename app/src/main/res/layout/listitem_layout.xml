@@ -6,20 +6,31 @@
     android:id="@+id/parent_layout">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:id="@+id/image"
         android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Canada"
+        android:text="Name"
         android:id="@+id/image_name"
         android:layout_toRightOf="@+id/image"
         android:textColor="#000"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="70dp"
-        android:textSize="17sp"/>
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="40dp"
+        android:textSize="25sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Number"
+        android:id="@+id/phone_no"
+        android:layout_toRightOf="@+id/image"
+        android:textColor="#696969"
+        android:layout_marginTop="47dp"
+        android:layout_marginLeft="40dp"
+        android:textSize="12sp"/>
 
 </RelativeLayout>

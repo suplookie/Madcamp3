@@ -1,6 +1,7 @@
 package com.example.madcamp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,13 +23,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private static final String TAG = "RecyclerViewAdapter";
 
     private ArrayList<String> mImageNames = new ArrayList<>();
-    private ArrayList<String> mImages = new ArrayList<>();
+    private ArrayList<Bitmap> mImages = new ArrayList<>();
+    private ArrayList<String> mPhoneNo = new ArrayList<>();
     private Context mContext;
 
-    public RecyclerViewAdapter(Context Context, ArrayList<String> ImageNames, ArrayList<String> Images) {
+    public RecyclerViewAdapter(Context Context, ArrayList<String> ImageNames, ArrayList<Bitmap> Images, ArrayList<String> PhoneNo) {
         this.mImageNames = ImageNames;
         this.mImages = Images;
         this.mContext = Context;
+        this.mPhoneNo = PhoneNo;
     }
 
     @NonNull
@@ -49,8 +52,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 .load(mImages.get(position))
                 .into(holder.image);
         holder.imageName.setText(mImageNames.get(position));
-
+        holder.phoneNo.setText(mPhoneNo.get(position));
         holder.parentLayout.setOnClickListener(new View.OnClickListener(){
+
             @Override
             public void onClick(View view){
                 Log.d(TAG, "onClick : clicked on : "+mImageNames.get(position));
@@ -69,12 +73,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         CircleImageView image;
         TextView imageName;
+        TextView phoneNo;
         RelativeLayout parentLayout;
 
         public ViewHolder(View itemView){
             super(itemView);
             image = itemView.findViewById(R.id.image);
             imageName = itemView.findViewById(R.id.image_name);
+            phoneNo = itemView.findViewById(R.id.phone_no);
             parentLayout = itemView.findViewById(R.id.parent_layout);
         }
     }

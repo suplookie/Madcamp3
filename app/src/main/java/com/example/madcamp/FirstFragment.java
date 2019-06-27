@@ -1,26 +1,24 @@
 package com.example.madcamp;
 
-import android.app.Activity;
 import android.content.ContentResolver;
-import android.content.Context;
+import android.content.ContentUris;
 import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.GenericArrayType;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class FirstFragment extends Fragment {
@@ -37,10 +35,14 @@ public class FirstFragment extends Fragment {
 
     //vars
     private ArrayList<String> mNames = new ArrayList<>();
-    private ArrayList<String> mImageUrls = new ArrayList<>();
+    private ArrayList<Bitmap> mImageUrls = new ArrayList<Bitmap>();
+    private ArrayList<String> mPhoneNo = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+
+
         Log.d(TAG, "onCreate:started.");
 
         View rootView = inflater.inflate(R.layout.firstfragment, container, false);
@@ -49,10 +51,11 @@ public class FirstFragment extends Fragment {
 
         initImageBitmaps();
 
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImageUrls);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImageUrls, mPhoneNo);
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
 
         return rootView;
     }
@@ -60,30 +63,34 @@ public class FirstFragment extends Fragment {
     private void initImageBitmaps(){
         Log.d(TAG, "iniImageBitmaps : preparing bitmaps.");
 
+        ContentResolver resolver = getActivity().getContentResolver();
+        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null,null, null, null);
 
-        mImageUrls.add("https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260");
-        mNames.add("Kevin");
+        while(cursor.moveToNext()){
+            String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+            mNames.add(name);
 
-        mImageUrls.add("https://i.redd.it/228zdgyagn631.jpg");
-        mNames.add("Sam");
+            Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id},null);
 
-        mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
-        mNames.add("Bojun");
+            while (phoneCursor.moveToNext()){
+                String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                mPhoneNo.add(phoneNumber);
+            }
 
-        mImageUrls.add("https://i.redd.it/raiqbbac1h631.jpg");
-        mNames.add("Joseph");
+            Bitmap photo = BitmapFactory.decodeResource(getActivity().getResources(), R.id.image);
 
-        mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
-        mNames.add("James");
+            InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getActivity().getContentResolver(),
+                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, new Long(id)));
 
-        mImageUrls.add("https://i.redd.it/raiqbbac1h631.jpg");
-        mNames.add("James");
+            if (inputStream != null) {
+                photo = BitmapFactory.decodeStream(inputStream);
+            }
 
-        mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
-        mNames.add("James");
+            mImageUrls.add(photo);
+        }
 
-        mImageUrls.add("https://i.redd.it/t7eaiwb0xl631.jpg");
-        mNames.add("James");
 
 
     }
