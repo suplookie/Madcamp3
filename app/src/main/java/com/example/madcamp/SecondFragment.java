@@ -1,6 +1,8 @@
 package com.example.madcamp;
 
         import android.Manifest;
+        import android.app.Activity;
+        import android.content.Context;
         import android.content.Intent;
         import android.net.Uri;
         import android.os.Bundle;
@@ -16,6 +18,7 @@ package com.example.madcamp;
         import androidx.annotation.NonNull;
         import androidx.core.content.FileProvider;
         import androidx.fragment.app.Fragment;
+        import androidx.recyclerview.widget.GridLayoutManager;
         import androidx.recyclerview.widget.LinearLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,7 +36,7 @@ public class SecondFragment extends Fragment {
 
     private static final int PICK_FROM_ALBUM = 1;
     private static final int PICK_FROM_CAMERA= 2;
-    private ArrayList<Uri> list;
+    private ArrayList<Uri> list, col1, col2, col3;
     private String mCurrentPhotoPath;
     private ImageView img1;
     private FloatingActionButton fab_img;
@@ -48,6 +51,17 @@ public class SecondFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+    private Context mContext;
+
+    private Activity activity;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+
+        if (context instanceof Activity)
+            activity = (Activity) context;
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +70,9 @@ public class SecondFragment extends Fragment {
         tedPermission();
 
         list = new ArrayList<>();
+        col1 = new ArrayList<>();
+        col2 = new ArrayList<>();
+        col3 = new ArrayList<>();
         /*
         for(int i = 0; i < 3; i++) {
             list.add(0);
@@ -66,7 +83,13 @@ public class SecondFragment extends Fragment {
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
         final RecyclerView recyclerView = view.findViewById(R.id.recycle2) ;
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity())) ;
+        //recyclerView.setLayoutManager(new LinearLayoutManager(activity)) ;
+
+
+        GridLayoutManager mGridLayoutManager;
+        int cols = 3;
+        mGridLayoutManager = new GridLayoutManager(mContext, cols);
+        recyclerView.setLayoutManager(mGridLayoutManager);
 
         // 리사이클러뷰에 CardAdapter 객체 지정.
         adapter = new CardAdapter(list) ;
@@ -97,8 +120,8 @@ public class SecondFragment extends Fragment {
         fab_cam.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //takePhoto();
-                //(adapter).notifyDataSetChanged();
+                takePhoto();
+                (adapter).notifyDataSetChanged();
                 recyclerView.smoothScrollToPosition(Integer.MAX_VALUE);
                 menuClose();
             }
@@ -118,18 +141,18 @@ public class SecondFragment extends Fragment {
             @Override
             public void onPermissionGranted() {
                 // 권한 요청 성공
-                Toast.makeText(getActivity(), "Permission Granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "Permission Granted", Toast.LENGTH_SHORT).show();
 
             }
 
             @Override
             public void onPermissionDenied(List<String> deniedPermissions) {
-                Toast.makeText(getActivity(), "Permission Denied\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "Permission Denied\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
             }
 
         };
 
-        TedPermission.with(Objects.requireNonNull(getContext()))
+        TedPermission.with(Objects.requireNonNull(mContext))
                 .setPermissionListener(permissionlistener)
                 .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission] ")
                 .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
@@ -142,7 +165,7 @@ public class SecondFragment extends Fragment {
         String state = Environment.getExternalStorageState();
         if(Environment.MEDIA_MOUNTED.equals(state)){
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if(intent.resolveActivity(getActivity().getPackageManager())!=null){
+            if(intent.resolveActivity(activity.getPackageManager())!=null){
                 File photoFile = null;
                 try{
                     photoFile = createImageFile();
@@ -150,7 +173,7 @@ public class SecondFragment extends Fragment {
                     e.printStackTrace();
                 }
                 if(photoFile!=null){
-                    Uri providerURI = FileProvider.getUriForFile(getContext(),getActivity().getPackageName(),photoFile);
+                    Uri providerURI = FileProvider.getUriForFile(mContext,activity.getPackageName(),photoFile);
                     imgUri = providerURI;
                     intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, providerURI);
                     startActivityForResult(intent, PICK_FROM_CAMERA);
@@ -158,7 +181,6 @@ public class SecondFragment extends Fragment {
             }
         }else{
             Log.v("알림", "저장공간에 접근 불가능");
-            return;
         }
     }
 
@@ -174,6 +196,9 @@ public class SecondFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode != Activity.RESULT_OK){
+            return;
+        }
 
         switch (requestCode){
             case PICK_FROM_ALBUM : {
@@ -184,14 +209,9 @@ public class SecondFragment extends Fragment {
 
                         //이미지뷰에 이미지 셋팅
                         img1.setImageURI(photoURI);
-
-                        if (!list.add(photoURI)) {
-                            Toast.makeText(getActivity(), "list add failed", Toast.LENGTH_SHORT).show();
-                        }
+                        if (!list.add(photoURI))
+                            Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
                         adapter.notifyDataSetChanged();
-
-                        //cropImage();
-
                     }catch (Exception e){
                         e.printStackTrace();
                         Log.v("알림","앨범에서 가져오기 에러");
@@ -206,13 +226,15 @@ public class SecondFragment extends Fragment {
                     galleryAddPic();
                 //이미지뷰에 이미지셋팅
                     img1.setImageURI(imgUri);
+                    if (!list.add(imgUri))
+                        Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
+                    adapter.notifyDataSetChanged();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
                 break;
             }
         }
-
     }
 
     public void galleryAddPic(){
@@ -225,9 +247,9 @@ public class SecondFragment extends Fragment {
 
         mediaScanIntent.setData(contentUri);
 
-        Objects.requireNonNull(getActivity()).sendBroadcast(mediaScanIntent);
+        Objects.requireNonNull(activity).sendBroadcast(mediaScanIntent);
 
-        Toast.makeText(getContext(),"사진이 저장되었습니다",Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext,"사진이 저장되었습니다",Toast.LENGTH_SHORT).show();
 
     }
 
@@ -267,5 +289,6 @@ public class SecondFragment extends Fragment {
 
         isMenuOpen = false;
     }
+
 
 }
