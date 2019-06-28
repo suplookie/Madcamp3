@@ -12,16 +12,16 @@ package com.example.madcamp;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
-        import android.widget.ImageView;
         import android.widget.Toast;
 
         import androidx.annotation.NonNull;
         import androidx.core.content.FileProvider;
         import androidx.fragment.app.Fragment;
         import androidx.recyclerview.widget.GridLayoutManager;
-        import androidx.recyclerview.widget.LinearLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
+        import androidx.viewpager.widget.ViewPager;
 
+        import com.google.android.material.appbar.AppBarLayout;
         import com.google.android.material.floatingactionbutton.FloatingActionButton;
         import com.gun0912.tedpermission.PermissionListener;
         import com.gun0912.tedpermission.TedPermission;
@@ -36,9 +36,8 @@ public class SecondFragment extends Fragment {
 
     private static final int PICK_FROM_ALBUM = 1;
     private static final int PICK_FROM_CAMERA= 2;
-    private ArrayList<Uri> list, col1, col2, col3;
+    private ArrayList<Uri> list;
     private String mCurrentPhotoPath;
-    private ImageView img1, zoom;
     private FloatingActionButton fab_img;
     private FloatingActionButton fab_cam;
     private CardAdapter adapter;
@@ -66,21 +65,10 @@ public class SecondFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
-        View cardview = inflater.inflate(R.layout.card, container, false);
         tedPermission();
 
         list = new ArrayList<>();
-        col1 = new ArrayList<>();
-        col2 = new ArrayList<>();
-        col3 = new ArrayList<>();
-        /*
-        for(int i = 0; i < 3; i++) {
-            list.add(0);
-        }*/
 
-        img1 = cardview.findViewById(R.id.card_image);
-        //img1 = view.findViewById(R.id.android);
-        zoom = view.findViewById(R.id.zoom_img);
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
         final RecyclerView recyclerView = view.findViewById(R.id.recycle2) ;
@@ -95,11 +83,22 @@ public class SecondFragment extends Fragment {
         // 리사이클러뷰에 CardAdapter 객체 지정.
         adapter = new CardAdapter(list) ;
 
+        AppBarLayout appBar = activity.findViewById(R.id.appbar);
+        appBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                menuClose();
+            }
+        });
+
+
+
 
         //fab click시 앨범에서 이미지 가져와 리스트에 추가
         FloatingActionButton fab = view.findViewById(R.id.fab);
         fab_img = view.findViewById(R.id.fab_img);
         fab_cam = view.findViewById(R.id.fab_cam);
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,21 +126,6 @@ public class SecondFragment extends Fragment {
                 menuClose();
             }
         });
-        img1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext, "card img clicked", Toast.LENGTH_SHORT).show();
-                zoom.setImageDrawable(img1.getDrawable());
-                zoom.setVisibility(View.VISIBLE);
-            }
-        });
-
-        zoom.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                zoom.setVisibility(View.INVISIBLE);
-            }
-        });
 
         //리사이클러뷰에 CardAdapter 객체 지정
         recyclerView.setAdapter(adapter) ;
@@ -151,32 +135,9 @@ public class SecondFragment extends Fragment {
 
     }
 
-    private void tedPermission() {
 
-        PermissionListener permissionlistener = new PermissionListener() {
-            @Override
-            public void onPermissionGranted() {
-                // 권한 요청 성공
-                Toast.makeText(activity, "Permission Granted", Toast.LENGTH_SHORT).show();
 
-            }
-
-            @Override
-            public void onPermissionDenied(List<String> deniedPermissions) {
-                Toast.makeText(activity, "Permission Denied\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
-            }
-
-        };
-
-        TedPermission.with(Objects.requireNonNull(mContext))
-                .setPermissionListener(permissionlistener)
-                .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission] ")
-                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
-                .check();
-
-    }
-
-    public void takePhoto(){
+    private void takePhoto(){
         // 촬영 후 이미지 가져옴
         String state = Environment.getExternalStorageState();
         if(Environment.MEDIA_MOUNTED.equals(state)){
@@ -224,7 +185,6 @@ public class SecondFragment extends Fragment {
                         Uri photoURI = data.getData();
 
                         //이미지뷰에 이미지 셋팅
-                        img1.setImageURI(photoURI);
                         if (!list.add(photoURI))
                             Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
                         adapter.notifyDataSetChanged();
@@ -241,7 +201,6 @@ public class SecondFragment extends Fragment {
                     Log.v("알림", "FROM_CAMERA 처리");
                     galleryAddPic();
                 //이미지뷰에 이미지셋팅
-                    img1.setImageURI(imgUri);
                     if (!list.add(imgUri))
                         Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
                     adapter.notifyDataSetChanged();
@@ -253,25 +212,18 @@ public class SecondFragment extends Fragment {
         }
     }
 
-    public void galleryAddPic(){
-
+    private void galleryAddPic(){
         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-
         File f = new File(mCurrentPhotoPath);
-
         Uri contentUri = Uri.fromFile(f);
-
         mediaScanIntent.setData(contentUri);
-
         Objects.requireNonNull(activity).sendBroadcast(mediaScanIntent);
-
         Toast.makeText(mContext,"사진이 저장되었습니다",Toast.LENGTH_SHORT).show();
-
     }
 
-    public File createImageFile() throws IOException {
+    private File createImageFile() throws IOException {
         String imgFileName = System.currentTimeMillis() + ".jpg";
-        File imageFile= null;
+        File imageFile;
         File storageDir = new File(Environment.getExternalStorageDirectory() + "/Pictures", "ireh");
         if(!storageDir.exists()){
             Log.v("알림","storageDir 존재 x " + storageDir.toString());
@@ -289,7 +241,6 @@ public class SecondFragment extends Fragment {
         if(!isMenuOpen){
             fab_img.animate().translationY(-getResources().getDimension(R.dimen.add_contacts));
             fab_cam.animate().translationY(-getResources().getDimension(R.dimen.read_contacts));
-
             isMenuOpen = true;
         } else {
             fab_img.animate().translationY(0);
@@ -306,5 +257,30 @@ public class SecondFragment extends Fragment {
         isMenuOpen = false;
     }
 
+
+    private void tedPermission() {
+
+        PermissionListener permissionlistener = new PermissionListener() {
+            @Override
+            public void onPermissionGranted() {
+                // 권한 요청 성공
+                Toast.makeText(activity, "Permission Granted", Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onPermissionDenied(List<String> deniedPermissions) {
+                Toast.makeText(activity, "Permission Denied\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
+            }
+
+        };
+
+        TedPermission.with(Objects.requireNonNull(mContext))
+                .setPermissionListener(permissionlistener)
+                .setDeniedMessage("If you reject permission,you can not use this service\n\nPlease turn on permissions at [Setting] > [Permission] ")
+                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+                .check();
+
+    }
 
 }
