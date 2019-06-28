@@ -102,7 +102,13 @@ public class FirstFragment extends Fragment {
         add_contacts.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+                Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
+                intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
 
+                startActivity(intent);
+                isContactRead = false;
+
+                (adapter).notifyDataSetChanged();
             }
         });
 
@@ -142,21 +148,6 @@ public class FirstFragment extends Fragment {
         }
     }
 
-    private void WriteContact(View view){
-        image = getActivity().findViewById(R.id.intentPhoto);
-        buttonImage = getActivity().findViewById(R.id.buttonPhoto);
-        intentName = getActivity().findViewById(R.id.intentName);
-        intentPhoneNo = getActivity().findViewById(R.id.intentPhoneNo);
-
-        Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
-        intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
-
-        intent
-                .putExtra(ContactsContract.Intents.Insert.NAME, intentName.getText())
-                .putExtra(ContactsContract.Intents.Insert.PHONE, intentPhoneNo.getText());
-
-        startActivity(intent);
-    }
 
     private void menuOpen(){
         if(!isMenuOpen){
