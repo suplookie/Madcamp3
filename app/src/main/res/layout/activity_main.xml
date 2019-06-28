@@ -35,32 +35,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/contents">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/colorAccent"
-                android:gravity="center"
-                android:visibility="visible"
-                android:id="@+id/text1"
-                android:text="TEXT 1" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#FF9800"
-                android:gravity="center"
-                android:visibility="invisible"
-                android:id="@+id/text2"
-                android:text="TEXT 2" />
-
-            <TextView
-                android:id="@+id/text3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#009688"
-                android:gravity="center"
-                android:text="TEXT 3"
-                android:visibility="invisible" />
 
         </FrameLayout>
     </com.google.android.material.appbar.AppBarLayout>

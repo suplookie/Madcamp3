@@ -14,11 +14,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) { // 표시할 Fragment
         switch (position) {
             case 0:
-                return FirstFragment.newInstance(); // 빨
+                return FirstFragment.newInstance(); // contact
             case 1:
-                return SecondFragment.newInstance(); // 초
+                return SecondFragment.newInstance(); // images
             case 2:
-                return ThirdFragment.newInstance(); // 파
+                return ThirdFragment.newInstance(); // map
             default:
                 return null;
         }
@@ -33,11 +33,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         switch (position) {
             case 0:
-                return "Mon";
+                return "Contact";
             case 1:
-                return "Tue";
+                return "Images";
             case 2:
-                return "Wed";
+                return "Map";
         }
         return null;
     }
