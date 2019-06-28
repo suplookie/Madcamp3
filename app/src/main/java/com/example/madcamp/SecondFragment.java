@@ -38,7 +38,7 @@ public class SecondFragment extends Fragment {
     private static final int PICK_FROM_CAMERA= 2;
     private ArrayList<Uri> list, col1, col2, col3;
     private String mCurrentPhotoPath;
-    private ImageView img1;
+    private ImageView img1, zoom;
     private FloatingActionButton fab_img;
     private FloatingActionButton fab_cam;
     private CardAdapter adapter;
@@ -80,6 +80,7 @@ public class SecondFragment extends Fragment {
 
         img1 = cardview.findViewById(R.id.card_image);
         //img1 = view.findViewById(R.id.android);
+        zoom = view.findViewById(R.id.zoom_img);
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
         final RecyclerView recyclerView = view.findViewById(R.id.recycle2) ;
@@ -124,6 +125,21 @@ public class SecondFragment extends Fragment {
                 (adapter).notifyDataSetChanged();
                 recyclerView.smoothScrollToPosition(Integer.MAX_VALUE);
                 menuClose();
+            }
+        });
+        img1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(mContext, "card img clicked", Toast.LENGTH_SHORT).show();
+                zoom.setImageDrawable(img1.getDrawable());
+                zoom.setVisibility(View.VISIBLE);
+            }
+        });
+
+        zoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                zoom.setVisibility(View.INVISIBLE);
             }
         });
 

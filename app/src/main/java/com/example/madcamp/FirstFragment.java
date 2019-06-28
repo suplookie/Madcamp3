@@ -141,7 +141,7 @@ public class FirstFragment extends Fragment {
             mImage.add(photo);
         }
     }
-
+/*
     private void WriteContact(View view){
         image = getActivity().findViewById(R.id.intentPhoto);
         buttonImage = getActivity().findViewById(R.id.buttonPhoto);
@@ -156,7 +156,7 @@ public class FirstFragment extends Fragment {
                 .putExtra(ContactsContract.Intents.Insert.PHONE, intentPhoneNo.getText());
 
         startActivity(intent);
-    }
+    }*/
 
     private void menuOpen(){
         if(!isMenuOpen){
