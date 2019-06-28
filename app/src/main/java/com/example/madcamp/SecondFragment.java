@@ -4,7 +4,7 @@ package com.example.madcamp;
         import android.app.Activity;
         import android.content.Context;
         import android.content.Intent;
-        import android.media.ExifInterface;
+        import androidx.exifinterface.media.ExifInterface;
         import android.net.Uri;
         import android.os.Bundle;
         import android.os.Environment;
@@ -20,7 +20,6 @@ package com.example.madcamp;
         import androidx.fragment.app.Fragment;
         import androidx.recyclerview.widget.GridLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
-        import androidx.viewpager.widget.ViewPager;
 
         import com.google.android.material.appbar.AppBarLayout;
         import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,6 +27,7 @@ package com.example.madcamp;
         import com.gun0912.tedpermission.TedPermission;
 
         import java.io.File;
+        import java.io.FileNotFoundException;
         import java.io.IOException;
         import java.io.InputStream;
         import java.util.ArrayList;
@@ -181,40 +181,17 @@ public class SecondFragment extends Fragment {
             return;
         }
 
+        Uri photoURI = imgUri;
+
         switch (requestCode){
             case PICK_FROM_ALBUM : {
                 //앨범에서 가져오기
                 if(data.getData()!=null){
                     try{
-                        Uri photoURI = data.getData();
-
+                        photoURI = data.getData();
                         //이미지뷰에 이미지 셋팅
                         if (!list.add(photoURI))
                             Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
-                        MapCoord coord = new MapCoord();
-                        InputStream in = activity.getContentResolver().openInputStream(photoURI);
-                        ExifInterface exif = new ExifInterface(in);
-
-                        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-
-                        if (latitude != null && longitude != null) {
-                            coord.valid = true;
-                            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
-                                coord.longitude = convertToDegree(longitude);
-                            else
-                                coord.longitude = 0 - convertToDegree(longitude);
-
-                            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
-                                coord.latitude = convertToDegree(latitude);
-                            else
-                                coord.latitude = 0 - convertToDegree(latitude);
-                        }else {
-                            //open google map,
-                        }
-
-                        coords.add(coord);
-                        adapter.notifyDataSetChanged();
                     }catch (Exception e){
                         e.printStackTrace();
                         Log.v("알림","앨범에서 가져오기 에러");
@@ -230,13 +207,49 @@ public class SecondFragment extends Fragment {
                 //이미지뷰에 이미지셋팅
                     if (!list.add(imgUri))
                         Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
-                    adapter.notifyDataSetChanged();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
                 break;
             }
         }
+        MapCoord coord = new MapCoord();
+        InputStream in = null;
+        try {
+            in = activity.getContentResolver().openInputStream(photoURI);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+
+        if (latitude != null && longitude != null) {
+            coord.valid = true;
+            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
+                coord.longitude = convertToDegree(longitude);
+            else
+                coord.longitude = 0 - convertToDegree(longitude);
+
+            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
+                coord.latitude = convertToDegree(latitude);
+            else
+                coord.latitude = 0 - convertToDegree(latitude);
+        }else {
+            //open google map,
+        }
+
+        coords.add(coord);
+        adapter.notifyDataSetChanged();
+
+
+
     }
 
     private void galleryAddPic(){
