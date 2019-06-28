@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Add_Contact_Activity">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:text="Add Contact"
+            android:id="@+id/AddContact"
+            android:textSize="30sp"
+            android:padding="15dp"
+            android:textColor="#000"/>
+
+        <TextView
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/textPhoneNo"
+            android:layout_marginStart="10dp"
+            android:padding="10dp"
+            android:text="Name"
+            android:id="@+id/textName"
+            android:textSize="18sp"
+            android:textColor="#696969"/>
+
+        <TextView
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="10dp"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:text="Phone Number"
+            android:id="@+id/textPhoneNo"
+            android:textSize="18sp"
+            android:textColor="#696969"/>
+
+        <Button
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:layout_below="@+id/textPhoneNo"
+            android:layout_marginStart="10dp"
+            android:padding="10dp"
+            android:text="Upload Photo"
+            android:id="@+id/uploadPhoto"
+            android:textSize="16sp"
+            android:textColor="#696969"/>
+
+        <EditText
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_toEndOf="@+id/textName"
+            android:layout_above="@+id/intentPhoneNo"
+            android:id="@+id/intentName"
+            />
+
+        <EditText
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_toEndOf="@+id/textPhoneNo"
+            android:layout_centerVertical="true"
+            android:id="@+id/intentPhoneNo"
+            />
+
+        <ImageView
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:layout_toEndOf="@+id/uploadPhoto"
+            android:layout_below="@+id/intentPhoneNo"
+            android:id="@+id/intentPhoto"
+            />
+
+        <Button
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/uploadPhoto"
+            android:layout_marginTop="40dp"
+            android:id="@+id/add_contact"
+            android:text="Add"/>
+
+</RelativeLayout>

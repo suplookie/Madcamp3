@@ -1,8 +1,10 @@
 package com.example.madcamp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,28 +42,33 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitem_layout, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
-
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        Log.d(TAG, "onBindViewHolder: called.");
+            Log.d(TAG, "onBindViewHolder: called.");
 
-        Glide.with(mContext)
-                .asBitmap()
-                .load(mImages.get(position))
-                .into(holder.image);
-        holder.imageName.setText(mImageNames.get(position));
-        holder.phoneNo.setText(mPhoneNo.get(position));
-        holder.parentLayout.setOnClickListener(new View.OnClickListener(){
+            holder.getAdapterPosition();
 
-            @Override
-            public void onClick(View view){
-                Log.d(TAG, "onClick : clicked on : "+mImageNames.get(position));
-
-                Toast.makeText(mContext, mImageNames.get(position), Toast.LENGTH_SHORT).show();
+            Glide.with(mContext)
+                    .asBitmap()
+                    .load(mImages.get(position))
+                    .into(holder.image);
+            holder.imageName.setText(mImageNames.get(position));
+            if (holder.imageName.getText().length() > 13){
+                holder.imageName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
             }
-        });
+            holder.phoneNo.setText(mPhoneNo.get(position));
+            holder.parentLayout.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+                    Log.d(TAG, "onClick : clicked on : " + mImageNames.get(position));
+
+                    Toast.makeText(mContext, mImageNames.get(position), Toast.LENGTH_SHORT).show();
+                }
+            });
+
     }
 
     @Override

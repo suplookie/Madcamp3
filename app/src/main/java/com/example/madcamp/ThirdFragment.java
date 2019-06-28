@@ -12,4 +12,6 @@ public class ThirdFragment extends Fragment {
         fragment.setArguments(args);
         return new ThirdFragment();
     }
+
+
 }

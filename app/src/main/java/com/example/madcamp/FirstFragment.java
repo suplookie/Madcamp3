@@ -1,14 +1,22 @@
 package com.example.madcamp;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +24,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,10 +36,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static android.app.Activity.RESULT_OK;
 
 public class FirstFragment extends Fragment {
 
@@ -56,9 +75,6 @@ public class FirstFragment extends Fragment {
 
     private String StopClickingReadContact = "Contact has been already loaded";
 
-    private ImageView image;
-    private Button buttonImage;
-    private EditText intentName, intentPhoneNo;
 
 
     @Override
@@ -66,7 +82,7 @@ public class FirstFragment extends Fragment {
 
         Log.d(TAG, "onCreate:started.");
 
-        View rootView = inflater.inflate(R.layout.firstfragment, container, false);
+        final View rootView = inflater.inflate(R.layout.firstfragment, container, false);
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
 
@@ -88,44 +104,49 @@ public class FirstFragment extends Fragment {
 
         read_contacts.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
-                if(!isContactRead){
-                    LoadContacts();
+            public void onClick(View view) {
+                if (!isContactRead) {
                     (adapter).notifyDataSetChanged();
+                    LoadContacts();
                     isContactRead = true;
-                }else{
-                    Toast.makeText(getActivity(),StopClickingReadContact,Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity(), StopClickingReadContact, Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        add_contacts.setOnClickListener(new View.OnClickListener(){
+        add_contacts.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
+                Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
+                intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
 
+                startActivity(intent);
+                isContactRead = false;
+
+                (adapter).notifyDataSetChanged();
             }
         });
-
 
         return rootView;
     }
 
 
-    private void LoadContacts(){
+    private void LoadContacts() {
         Log.d(TAG, "iniImageBitmaps : preparing bitmaps.");
 
         ContentResolver resolver = getActivity().getContentResolver();
-        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null,null, null, null);
+        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
 
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
             String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             mNames.add(name);
 
             Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id},null);
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
 
-            while (phoneCursor.moveToNext()){
+            while (phoneCursor.moveToNext()) {
                 String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 mPhoneNo.add(phoneNumber);
             }
@@ -142,24 +163,9 @@ public class FirstFragment extends Fragment {
         }
     }
 
-    private void WriteContact(View view){
-        image = getActivity().findViewById(R.id.intentPhoto);
-        buttonImage = getActivity().findViewById(R.id.buttonPhoto);
-        intentName = getActivity().findViewById(R.id.intentName);
-        intentPhoneNo = getActivity().findViewById(R.id.intentPhoneNo);
 
-        Intent intent = new Intent(ContactsContract.Intents.Insert.ACTION);
-        intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
-
-        intent
-                .putExtra(ContactsContract.Intents.Insert.NAME, intentName.getText())
-                .putExtra(ContactsContract.Intents.Insert.PHONE, intentPhoneNo.getText());
-
-        startActivity(intent);
-    }
-
-    private void menuOpen(){
-        if(!isMenuOpen){
+    private void menuOpen() {
+        if (!isMenuOpen) {
             add_contacts.animate().translationY(-getResources().getDimension(R.dimen.add_contacts));
             read_contacts.animate().translationY(-getResources().getDimension(R.dimen.read_contacts));
 
@@ -171,6 +177,11 @@ public class FirstFragment extends Fragment {
             isMenuOpen = false;
         }
     }
+
+
+
+
+
 
 }
 
