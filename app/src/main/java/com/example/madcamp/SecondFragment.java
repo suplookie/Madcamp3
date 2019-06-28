@@ -4,6 +4,7 @@ package com.example.madcamp;
         import android.app.Activity;
         import android.content.Context;
         import android.content.Intent;
+        import android.media.ExifInterface;
         import android.net.Uri;
         import android.os.Bundle;
         import android.os.Environment;
@@ -28,6 +29,7 @@ package com.example.madcamp;
 
         import java.io.File;
         import java.io.IOException;
+        import java.io.InputStream;
         import java.util.ArrayList;
         import java.util.List;
         import java.util.Objects;
@@ -37,6 +39,7 @@ public class SecondFragment extends Fragment {
     private static final int PICK_FROM_ALBUM = 1;
     private static final int PICK_FROM_CAMERA= 2;
     private ArrayList<Uri> list;
+    private ArrayList<MapCoord> coords;
     private String mCurrentPhotoPath;
     private FloatingActionButton fab_img;
     private FloatingActionButton fab_cam;
@@ -68,6 +71,7 @@ public class SecondFragment extends Fragment {
         tedPermission();
 
         list = new ArrayList<>();
+        coords = new ArrayList<>();
 
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
@@ -81,7 +85,7 @@ public class SecondFragment extends Fragment {
         recyclerView.setLayoutManager(mGridLayoutManager);
 
         // 리사이클러뷰에 CardAdapter 객체 지정.
-        adapter = new CardAdapter(list) ;
+        adapter = new CardAdapter(list, coords) ;
 
         AppBarLayout appBar = activity.findViewById(R.id.appbar);
         appBar.setOnClickListener(new View.OnClickListener() {
@@ -187,6 +191,29 @@ public class SecondFragment extends Fragment {
                         //이미지뷰에 이미지 셋팅
                         if (!list.add(photoURI))
                             Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
+                        MapCoord coord = new MapCoord();
+                        InputStream in = activity.getContentResolver().openInputStream(photoURI);
+                        ExifInterface exif = new ExifInterface(in);
+
+                        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+                        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+
+                        if (latitude != null && longitude != null) {
+                            coord.valid = true;
+                            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
+                                coord.longitude = convertToDegree(longitude);
+                            else
+                                coord.longitude = 0 - convertToDegree(longitude);
+
+                            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
+                                coord.latitude = convertToDegree(latitude);
+                            else
+                                coord.latitude = 0 - convertToDegree(latitude);
+                        }else {
+                            //open google map,
+                        }
+
+                        coords.add(coord);
                         adapter.notifyDataSetChanged();
                     }catch (Exception e){
                         e.printStackTrace();
@@ -282,5 +309,33 @@ public class SecondFragment extends Fragment {
                 .check();
 
     }
+
+    private Float convertToDegree(String stringDMS){
+        Float result = null;
+        String[] DMS = stringDMS.split(",", 3);
+
+        String[] stringD = DMS[0].split("/", 2);
+        Double D0 = new Double(stringD[0]);
+        Double D1 = new Double(stringD[1]);
+        Double FloatD = D0/D1;
+
+        String[] stringM = DMS[1].split("/", 2);
+        Double M0 = new Double(stringM[0]);
+        Double M1 = new Double(stringM[1]);
+        Double FloatM = M0/M1;
+
+        String[] stringS = DMS[2].split("/", 2);
+        Double S0 = new Double(stringS[0]);
+        Double S1 = new Double(stringS[1]);
+        Double FloatS = S0/S1;
+
+        result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
+
+        return result;
+
+
+    };
+
+
 
 }

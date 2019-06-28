@@ -2,6 +2,7 @@ package com.example.madcamp;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -20,10 +21,11 @@ public class ImgActivity extends AppCompatActivity {
 
         ImageView imageview = findViewById(R.id.imageview);
 
-        byte[] byteArray = getIntent().getByteArrayExtra("image");
-        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
-        imageview.setImageBitmap(bitmap);
+
+        Uri uri = getIntent().getParcelableExtra("imgUri");
+
+        imageview.setImageURI(uri);
     }
 }
 

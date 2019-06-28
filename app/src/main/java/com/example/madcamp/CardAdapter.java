@@ -2,60 +2,52 @@ package com.example.madcamp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     private ArrayList<Uri> mData;
+    private ArrayList<MapCoord> coords;
     Context context;
 
     //생성자
-    CardAdapter(ArrayList<Uri> list)
+    CardAdapter(ArrayList<Uri> list, ArrayList<MapCoord> coordList)
     {
         this.mData = list ;
+        this.coords = coordList;
 
     }
     public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView1;
+        Card card;
 
         ViewHolder(View itemView) {
             super(itemView);
+            card = new Card();
 
-            imageView1 = itemView.findViewById(R.id.card_image);
-            imageView1.setOnClickListener(new View.OnClickListener() {
+            card.img = itemView.findViewById(R.id.card_image);
+            card.img.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    Bitmap bitmap = ((BitmapDrawable)imageView1.getDrawable()).getBitmap();
-                    float scale = (1024/(float)bitmap.getWidth());
-                    int image_w = (int) (bitmap.getWidth() * scale);
-                    int image_h = (int) (bitmap.getHeight() * scale);
-                    Bitmap resize = Bitmap.createScaledBitmap(bitmap, image_w, image_h, true);
-                    resize.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    byte[] byteArray = stream.toByteArray();
+
+                    if (coords.get(card.index).valid)
+                        Toast.makeText(context, coords.get(card.index).latitude.toString() + " " + coords.get(card.index).longitude.toString(), Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(context, ImgActivity.class);
 
-                    intent.putExtra("string", "intent 연습");
-                    intent.putExtra("integer", 300);
-                    intent.putExtra("double", 3.141592 );
-                    intent.putExtra("image", byteArray);
+                    intent.putExtra("imgUri", mData.get(card.index));
 
                     context.startActivity(intent);
 
-                    //imageView1.setImageDrawable(view.getResources().getDrawable(R.drawable.android));
                 }
             });
         }
@@ -70,7 +62,6 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) ;
 
         View view = inflater.inflate(R.layout.card, parent, false) ;
-        View cardview = inflater.inflate(R.layout.fragment_second, parent, false);
 
 
 
@@ -79,9 +70,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull CardAdapter.ViewHolder holder, int position) {
-        //String text = mData.get(position) ;
-        //holder.imageView1.setText(text) ;
-        holder.imageView1.setImageURI(this.mData.get(position));
+        holder.card.img.setImageURI(this.mData.get(position));
+        holder.card.index = position;
     }
 
     @Override
@@ -89,5 +79,11 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         return mData.size() ;
     }
 
+    private class Card {
+        ImageView img;
+        int index;
+    }
+
 }
+
 
