@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -68,6 +69,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
                 @Override
                 public void onClick(View view) {
+                    view.getContext().startActivity(new Intent(view.getContext(), ContactMap.class));
                     Log.d(TAG, "onClick : clicked on : " + mImageNames.get(position));
 
                     Toast.makeText(mContext, mImageNames.get(position), Toast.LENGTH_SHORT).show();

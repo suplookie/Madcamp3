@@ -1,18 +1,11 @@
 package com.example.madcamp;
 
 import android.app.Activity;
-import android.content.pm.PackageManager;
+import android.app.FragmentManager;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,44 +13,31 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
-public class ThirdFragment extends Fragment implements OnMapReadyCallback {
+public class ContactMap extends Activity implements OnMapReadyCallback {
 
     private MapView mapView;
     private GoogleMap map;
-
-    public static ThirdFragment newInstance() {
-        Bundle args = new Bundle();
-        ThirdFragment fragment = new ThirdFragment();
-        fragment.setArguments(args);
-        return new ThirdFragment();
-    }
-
     @Override
-    public void onDetach() {
-        super.onDetach();
-    }
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState);
-    }
+        setContentView(R.layout.contactmap);
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        DisplayMetrics dm  = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-        final View rootView = inflater.inflate(R.layout.thirdfragment, container, false);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
 
-        MapsInitializer.initialize(getActivity());
-        mapView = rootView.findViewById(R.id.map);
-        mapView.onCreate(savedInstanceState);
+        getWindow().setLayout((int)(width*.8), (int)(height*.6));
 
-        mapView.getMapAsync(this);
-
-        return rootView;
+        FragmentManager fragmentManager = getFragmentManager();
+        MapFragment mapFragment = (MapFragment)fragmentManager
+                .findFragmentById(R.id.contactMap);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -100,9 +80,5 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
         mapView.onResume();
-    }
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
     }
 }

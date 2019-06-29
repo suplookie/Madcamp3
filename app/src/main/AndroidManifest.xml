@@ -51,6 +51,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ImgActivity" />
+        <activity android:name=".ContactMap"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
