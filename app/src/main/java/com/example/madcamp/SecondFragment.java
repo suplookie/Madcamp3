@@ -25,6 +25,7 @@ package com.example.madcamp;
         import androidx.recyclerview.widget.GridLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
 
+        import com.google.android.gms.maps.model.LatLng;
         import com.google.android.material.appbar.AppBarLayout;
         import com.google.android.material.floatingactionbutton.FloatingActionButton;
         import com.gun0912.tedpermission.PermissionListener;
@@ -182,12 +183,33 @@ public class SecondFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode != Activity.RESULT_OK){
+            Toast.makeText(activity, "result code: "+ resultCode, Toast.LENGTH_SHORT).show();
             return;
         }
 
         photoURI = imgUri;
 
         switch (requestCode){
+            case 3000 : {
+                LatLng latLng;
+                if (data.getExtras() != null) {
+                    if (data.getExtras().getParcelable("latLng") != null) {
+                        latLng = data.getExtras().getParcelable("latLng");
+                        coords.remove(coords.size() - 1);
+                        MapCoord mapCoord = new MapCoord();
+                        mapCoord.longitude = latLng.longitude;
+                        mapCoord.latitude = latLng.latitude;
+                        mapCoord.valid = true;
+                        coords.add(mapCoord);
+                        adapter.notifyDataSetChanged();
+                        if (coords.size() != list.size())
+                            Toast.makeText(activity, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                return;
+
+            }
+
             case PICK_FROM_ALBUM : {
                 //앨범에서 가져오기
                 if(data.getData()!=null){
@@ -226,8 +248,7 @@ public class SecondFragment extends Fragment {
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -328,8 +349,8 @@ public class SecondFragment extends Fragment {
 
     }
 
-    private Float convertToDegree(String stringDMS){
-        Float result = null;
+    private Double convertToDegree(String stringDMS){
+        Double result = null;
         String[] DMS = stringDMS.split(",", 3);
 
         String[] stringD = DMS[0].split("/", 2);
@@ -347,7 +368,7 @@ public class SecondFragment extends Fragment {
         Double S1 = Double.valueOf(stringS[1]);
         Double FloatS = S0/S1;
 
-        result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
+        result = Double.valueOf(FloatD + (FloatM/60) + (FloatS/3600));
 
         return result;
 
@@ -360,20 +381,20 @@ public class SecondFragment extends Fragment {
         builder.setPositiveButton("예",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(activity.getApplicationContext(),"예를 선택했습니다.",Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(mContext, AddCoord.class);
-                        intent.putExtra("Uri", photoURI);
-                        mContext.startActivity(intent);
+                        //intent.putExtra("Uri", photoURI);
+                        startActivityForResult(intent, 3000);
                     }
                 });
+
         builder.setNegativeButton("아니오",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(activity.getApplicationContext(),"아니오를 선택했습니다.",Toast.LENGTH_LONG).show();
                     }
                 });
         builder.show();
     }
+
 
 
 
