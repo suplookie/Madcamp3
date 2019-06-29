@@ -266,7 +266,7 @@ public class SecondFragment extends Fragment {
 
     private void menuOpen(){
         if(!isMenuOpen){
-            fab_img.animate().translationY(-getResources().getDimension(R.dimen.add_contacts));
+            fab_img.animate().translationY(-getResources().getDimension(R.dimen.add_contact));
             fab_cam.animate().translationY(-getResources().getDimension(R.dimen.read_contacts));
             isMenuOpen = true;
         } else {

@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +54,7 @@ public class FirstFragment extends Fragment {
     FloatingActionButton menu;
     FloatingActionButton read_contacts;
     FloatingActionButton add_contacts;
+    FloatingActionButton refresh;
     boolean isMenuOpen = false;
     boolean isContactRead = false;
 
@@ -66,18 +70,13 @@ public class FirstFragment extends Fragment {
 
         Log.d(TAG, "onCreate:started.");
 
-        View rootView = inflater.inflate(R.layout.firstfragment, container, false);
+        final View rootView = inflater.inflate(R.layout.firstfragment, container, false);
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
-
-        final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo);
-
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         menu = rootView.findViewById(R.id.menu);
         read_contacts = rootView.findViewById(R.id.read_contact);
         add_contacts = rootView.findViewById(R.id.add_contact);
+        refresh = rootView.findViewById(R.id.refresh);
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,8 +90,16 @@ public class FirstFragment extends Fragment {
             public void onClick(View view){
                 if(!isContactRead){
                     LoadContacts();
-                    (adapter).notifyDataSetChanged();
+
+                    final RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
+
+                    final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo);
+
+                    recyclerView.setAdapter(adapter);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
                     isContactRead = true;
+
                 }else{
                     Toast.makeText(getActivity(),StopClickingReadContact,Toast.LENGTH_SHORT).show();
                 }
@@ -106,9 +113,24 @@ public class FirstFragment extends Fragment {
                 intent.setType(ContactsContract.RawContacts.CONTENT_TYPE);
 
                 startActivity(intent);
-                isContactRead = false;
 
-                (adapter).notifyDataSetChanged();
+                isContactRead = false;
+            }
+        });
+
+        refresh.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                mImage.clear();
+                mPhoneNo.clear();
+                mNames.clear();
+
+                final RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
+
+                final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo);
+
+                recyclerView.setAdapter(adapter);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             }
         });
 
@@ -118,6 +140,11 @@ public class FirstFragment extends Fragment {
 
 
     private void LoadContacts(){
+
+        mNames.clear();
+        mPhoneNo.clear();
+        mImage.clear();
+
         Log.d(TAG, "iniImageBitmaps : preparing bitmaps.");
 
         ContentResolver resolver = getActivity().getContentResolver();
@@ -145,23 +172,28 @@ public class FirstFragment extends Fragment {
                 photo = BitmapFactory.decodeStream(inputStream);
             }
             mImage.add(photo);
+
         }
     }
 
 
     private void menuOpen(){
         if(!isMenuOpen){
-            add_contacts.animate().translationY(-getResources().getDimension(R.dimen.add_contacts));
+            add_contacts.animate().translationY(-getResources().getDimension(R.dimen.add_contact));
             read_contacts.animate().translationY(-getResources().getDimension(R.dimen.read_contacts));
+            refresh.animate().translationX(-getResources().getDimension(R.dimen.refresh));
 
             isMenuOpen = true;
         } else {
             add_contacts.animate().translationY(0);
             read_contacts.animate().translationY(0);
+            refresh.animate().translationX(0);
 
             isMenuOpen = false;
         }
     }
+
+
 
 }
 
