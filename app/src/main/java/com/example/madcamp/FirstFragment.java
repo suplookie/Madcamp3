@@ -142,6 +142,8 @@ public class FirstFragment extends Fragment {
 
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+                isContactRead = false;
             }
         });
 
