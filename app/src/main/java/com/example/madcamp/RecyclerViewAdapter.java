@@ -1,5 +1,6 @@
 package com.example.madcamp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,14 +33,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> mImageNames = new ArrayList<>();
     private ArrayList<Bitmap> mImages = new ArrayList<>();
     private ArrayList<String> mPhoneNo = new ArrayList<>();
+    static ArrayList<String> mLocation = new ArrayList<>();
     private Context mContext;
 
 
-    public RecyclerViewAdapter(Context Context, ArrayList<String> ImageNames, ArrayList<Bitmap> Images, ArrayList<String> PhoneNo) {
+    public RecyclerViewAdapter(Context Context, ArrayList<String> ImageNames, ArrayList<Bitmap> Images, ArrayList<String> PhoneNo, ArrayList<String> Location) {
         this.mImageNames = ImageNames;
         this.mImages = Images;
         this.mContext = Context;
         this.mPhoneNo = PhoneNo;
+        this.mLocation = Location;
     }
 
     @NonNull
@@ -69,12 +72,23 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
                 @Override
                 public void onClick(View view) {
-                    view.getContext().startActivity(new Intent(view.getContext(), ContactMap.class));
-                    Log.d(TAG, "onClick : clicked on : " + mImageNames.get(position));
 
-                    Toast.makeText(mContext, mImageNames.get(position), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onClick : clicked on : " + mLocation.get(position));
+
+                    Toast.makeText(mContext, mLocation.get(position).substring(0, mLocation.get(position).length()-8), Toast.LENGTH_SHORT).show();
+
+                    openContactMaps(view, mLocation, position);
+
                 }
             });
+
+    }
+
+    public void openContactMaps(View view, ArrayList<String> mLocation, int position){
+        String location = mLocation.get(position);
+        Intent intent = new Intent(view.getContext(), ContactMap.class);
+        intent.putExtra("CONTACT_LOCATION", location);
+        view.getContext().startActivity(intent);
 
     }
 

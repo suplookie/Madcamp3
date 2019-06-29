@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Settings;
@@ -50,6 +51,7 @@ public class FirstFragment extends Fragment {
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<Bitmap> mImage = new ArrayList<Bitmap>();
     private ArrayList<String> mPhoneNo = new ArrayList<>();
+    private ArrayList<String> mLocation = new ArrayList<>();
 
     FloatingActionButton menu;
     FloatingActionButton read_contacts;
@@ -65,6 +67,7 @@ public class FirstFragment extends Fragment {
     private EditText intentName, intentPhoneNo;
 
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -72,6 +75,14 @@ public class FirstFragment extends Fragment {
 
         final View rootView = inflater.inflate(R.layout.firstfragment, container, false);
 
+        final RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
+
+        final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo, mLocation);
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        isContactRead = false;
 
         menu = rootView.findViewById(R.id.menu);
         read_contacts = rootView.findViewById(R.id.read_contact);
@@ -93,7 +104,7 @@ public class FirstFragment extends Fragment {
 
                     final RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
 
-                    final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo);
+                    final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo, mLocation);
 
                     recyclerView.setAdapter(adapter);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -127,7 +138,7 @@ public class FirstFragment extends Fragment {
 
                 final RecyclerView recyclerView = rootView.findViewById(R.id.recyclerv_view);
 
-                final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo);
+                final RecyclerViewAdapter adapter = new RecyclerViewAdapter(getActivity(), mNames, mImage, mPhoneNo, mLocation);
 
                 recyclerView.setAdapter(adapter);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -144,6 +155,7 @@ public class FirstFragment extends Fragment {
         mNames.clear();
         mPhoneNo.clear();
         mImage.clear();
+        mLocation.clear();
 
         Log.d(TAG, "iniImageBitmaps : preparing bitmaps.");
 
@@ -163,6 +175,7 @@ public class FirstFragment extends Fragment {
                 mPhoneNo.add(phoneNumber);
             }
 
+
             Bitmap photo = BitmapFactory.decodeResource(getActivity().getResources(), R.id.image);
 
             InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getActivity().getContentResolver(),
@@ -172,6 +185,18 @@ public class FirstFragment extends Fragment {
                 photo = BitmapFactory.decodeStream(inputStream);
             }
             mImage.add(photo);
+
+
+            Uri postal_uri = ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI;
+            Cursor postal_cursor  = getActivity().getContentResolver().query(postal_uri,null,  ContactsContract.Data.CONTACT_ID + "="+ id.toString(), null,null);
+            while(postal_cursor.moveToNext())
+            {
+                String Strt = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET));
+                String Cty = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.CITY));
+                String cntry = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY));
+                mLocation.add(Strt+Cty+cntry);
+            }
+
 
         }
     }
