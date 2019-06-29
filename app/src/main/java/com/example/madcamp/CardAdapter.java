@@ -40,7 +40,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
                 public void onClick(View view) {
 
                     if (coords.get(card.index).valid)
-                        Toast.makeText(context, coords.get(card.index).latitude.toString() + " " + coords.get(card.index).longitude.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, coords.get(card.index).getLatLng().latitude + " " + coords.get(card.index).getLatLng().longitude, Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(context, ImgActivity.class);
 

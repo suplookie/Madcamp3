@@ -197,11 +197,11 @@ public class SecondFragment extends Fragment {
                         latLng = data.getExtras().getParcelable("latLng");
                         coords.remove(coords.size() - 1);
                         MapCoord mapCoord = new MapCoord();
-                        mapCoord.longitude = latLng.longitude;
-                        mapCoord.latitude = latLng.latitude;
+                        mapCoord.setLatLng(latLng);
                         mapCoord.valid = true;
                         coords.add(mapCoord);
                         adapter.notifyDataSetChanged();
+                        Toast.makeText(activity, mapCoord.getLatLng().latitude + " " + mapCoord.getLatLng().longitude, Toast.LENGTH_SHORT).show();
                         if (coords.size() != list.size())
                             Toast.makeText(activity, "Something went wrong", Toast.LENGTH_SHORT).show();
                     }
@@ -255,17 +255,19 @@ public class SecondFragment extends Fragment {
         String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
         String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
 
+        Double lat, lng;
         if (latitude != null && longitude != null) {
             coord.valid = true;
             if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
-                coord.longitude = convertToDegree(longitude);
+                lng = convertToDegree(longitude);
             else
-                coord.longitude = 0 - convertToDegree(longitude);
+                lng = 0 - convertToDegree(longitude);
 
             if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
-                coord.latitude = convertToDegree(latitude);
+                lat = convertToDegree(latitude);
             else
-                coord.latitude = 0 - convertToDegree(latitude);
+                lat = 0 - convertToDegree(latitude);
+            coord.setLatLng(new LatLng(lat, lng));
         }else {
             //open google map,
             showDialog();

@@ -81,12 +81,14 @@ public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
 
 
 
+
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 latLng[0] = point;
                 mMap.clear();
                 mMap.addMarker(new MarkerOptions().position(point));
+                choose = true;
             }
         });
 
@@ -100,7 +102,9 @@ public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
     public void onBackPressed() {
         Intent intent = new Intent();
         intent.putExtra("latLng", latLng[0]);
-        setResult(RESULT_OK, intent);
+        if (choose)
+            setResult(RESULT_OK, intent);
         super.onBackPressed();
     }
+    boolean choose = false;
 }
