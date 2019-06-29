@@ -3,7 +3,10 @@ package com.example.madcamp;
         import android.Manifest;
         import android.app.Activity;
         import android.content.Context;
+        import android.content.DialogInterface;
         import android.content.Intent;
+
+        import androidx.appcompat.app.AlertDialog;
         import androidx.exifinterface.media.ExifInterface;
         import android.net.Uri;
         import android.os.Bundle;
@@ -243,6 +246,7 @@ public class SecondFragment extends Fragment {
                 coord.latitude = 0 - convertToDegree(latitude);
         }else {
             //open google map,
+            showDialog();
         }
 
         coords.add(coord);
@@ -348,6 +352,26 @@ public class SecondFragment extends Fragment {
 
 
     };
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("사진 위치정보를 추가하시겠습니까?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(activity.getApplicationContext(),"예를 선택했습니다.",Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(mContext, AddCoord.class);
+                        mContext.startActivity(intent);
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(activity.getApplicationContext(),"아니오를 선택했습니다.",Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.show();
+    }
 
 
 
