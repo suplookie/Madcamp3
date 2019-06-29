@@ -2,14 +2,23 @@ package com.example.madcamp;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.widget.ImageView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
 
 public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
 
@@ -41,6 +50,28 @@ public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
+
+        LatLng seoul = new LatLng(37.52487, 126.92723);
+
+        Uri uri = getIntent().getParcelableExtra("Uri");
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 200, 200, false);
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions
+                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                .position(seoul)
+                .title("Marker in Seoul");
+
+        mMap.addMarker(markerOptions);
+
+
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
