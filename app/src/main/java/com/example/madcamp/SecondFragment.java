@@ -8,7 +8,6 @@ package com.example.madcamp;
 
         import androidx.appcompat.app.AlertDialog;
 
-        import android.media.ExifInterface;
         import android.net.Uri;
         import android.os.Bundle;
         import android.os.Environment;
@@ -21,6 +20,7 @@ package com.example.madcamp;
 
         import androidx.annotation.NonNull;
         import androidx.core.content.FileProvider;
+        import androidx.exifinterface.media.ExifInterface;
         import androidx.fragment.app.Fragment;
         import androidx.recyclerview.widget.GridLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
