@@ -2,6 +2,7 @@ package com.example.madcamp;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
 
@@ -49,8 +52,8 @@ public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
 
+/*
         LatLng seoul = new LatLng(37.52487, 126.92723);
 
         Uri uri = getIntent().getParcelableExtra("Uri");
@@ -70,9 +73,34 @@ public class AddCoord extends FragmentActivity implements OnMapReadyCallback {
                 .title("Marker in Seoul");
 
         mMap.addMarker(markerOptions);
+*/
 
-
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+
+
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                latLng[0] = point;
+                mMap.clear();
+                mMap.addMarker(new MarkerOptions().position(point));
+            }
+        });
+
+    }
+
+    LatLng sydney = new LatLng(-34, 151);
+    final LatLng[] latLng = {sydney};
+
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("latLng", latLng[0]);
+        setResult(RESULT_OK, intent);
+        super.onBackPressed();
     }
 }
