@@ -3,8 +3,11 @@ package com.example.madcamp;
         import android.Manifest;
         import android.app.Activity;
         import android.content.Context;
+        import android.content.DialogInterface;
         import android.content.Intent;
-        import android.media.ExifInterface;
+
+        import androidx.appcompat.app.AlertDialog;
+        import androidx.exifinterface.media.ExifInterface;
         import android.net.Uri;
         import android.os.Bundle;
         import android.os.Environment;
@@ -20,7 +23,6 @@ package com.example.madcamp;
         import androidx.fragment.app.Fragment;
         import androidx.recyclerview.widget.GridLayoutManager;
         import androidx.recyclerview.widget.RecyclerView;
-        import androidx.viewpager.widget.ViewPager;
 
         import com.google.android.material.appbar.AppBarLayout;
         import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,6 +30,7 @@ package com.example.madcamp;
         import com.gun0912.tedpermission.TedPermission;
 
         import java.io.File;
+        import java.io.FileNotFoundException;
         import java.io.IOException;
         import java.io.InputStream;
         import java.util.ArrayList;
@@ -45,7 +48,7 @@ public class SecondFragment extends Fragment {
     private FloatingActionButton fab_cam;
     private CardAdapter adapter;
     private boolean isMenuOpen = false;
-    private Uri imgUri;
+    private Uri imgUri, photoURI;
 
     public static SecondFragment newInstance() {
         Bundle args = new Bundle();
@@ -181,40 +184,17 @@ public class SecondFragment extends Fragment {
             return;
         }
 
+        photoURI = imgUri;
+
         switch (requestCode){
             case PICK_FROM_ALBUM : {
                 //앨범에서 가져오기
                 if(data.getData()!=null){
                     try{
-                        Uri photoURI = data.getData();
-
+                        photoURI = data.getData();
                         //이미지뷰에 이미지 셋팅
                         if (!list.add(photoURI))
                             Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
-                        MapCoord coord = new MapCoord();
-                        InputStream in = activity.getContentResolver().openInputStream(photoURI);
-                        ExifInterface exif = new ExifInterface(in);
-
-                        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-
-                        if (latitude != null && longitude != null) {
-                            coord.valid = true;
-                            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
-                                coord.longitude = convertToDegree(longitude);
-                            else
-                                coord.longitude = 0 - convertToDegree(longitude);
-
-                            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
-                                coord.latitude = convertToDegree(latitude);
-                            else
-                                coord.latitude = 0 - convertToDegree(latitude);
-                        }else {
-                            //open google map,
-                        }
-
-                        coords.add(coord);
-                        adapter.notifyDataSetChanged();
                     }catch (Exception e){
                         e.printStackTrace();
                         Log.v("알림","앨범에서 가져오기 에러");
@@ -230,13 +210,50 @@ public class SecondFragment extends Fragment {
                 //이미지뷰에 이미지셋팅
                     if (!list.add(imgUri))
                         Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
-                    adapter.notifyDataSetChanged();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
                 break;
             }
         }
+        MapCoord coord = new MapCoord();
+        InputStream in = null;
+        ExifInterface exif = null;
+        try {
+            in = activity.getContentResolver().openInputStream(photoURI);
+            exif = new ExifInterface(in);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+
+        if (latitude != null && longitude != null) {
+            coord.valid = true;
+            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
+                coord.longitude = convertToDegree(longitude);
+            else
+                coord.longitude = 0 - convertToDegree(longitude);
+
+            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
+                coord.latitude = convertToDegree(latitude);
+            else
+                coord.latitude = 0 - convertToDegree(latitude);
+        }else {
+            //open google map,
+            showDialog();
+        }
+
+        coords.add(coord);
+        adapter.notifyDataSetChanged();
+
+
+
     }
 
     private void galleryAddPic(){
@@ -315,18 +332,18 @@ public class SecondFragment extends Fragment {
         String[] DMS = stringDMS.split(",", 3);
 
         String[] stringD = DMS[0].split("/", 2);
-        Double D0 = new Double(stringD[0]);
-        Double D1 = new Double(stringD[1]);
+        Double D0 = Double.valueOf(stringD[0]);
+        Double D1 = Double.valueOf(stringD[1]);
         Double FloatD = D0/D1;
 
         String[] stringM = DMS[1].split("/", 2);
-        Double M0 = new Double(stringM[0]);
-        Double M1 = new Double(stringM[1]);
+        Double M0 = Double.valueOf(stringM[0]);
+        Double M1 = Double.valueOf(stringM[1]);
         Double FloatM = M0/M1;
 
         String[] stringS = DMS[2].split("/", 2);
-        Double S0 = new Double(stringS[0]);
-        Double S1 = new Double(stringS[1]);
+        Double S0 = Double.valueOf(stringS[0]);
+        Double S1 = Double.valueOf(stringS[1]);
         Double FloatS = S0/S1;
 
         result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
@@ -335,6 +352,27 @@ public class SecondFragment extends Fragment {
 
 
     };
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("사진 위치정보를 추가하시겠습니까?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(activity.getApplicationContext(),"예를 선택했습니다.",Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(mContext, AddCoord.class);
+                        intent.putExtra("Uri", photoURI);
+                        mContext.startActivity(intent);
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(activity.getApplicationContext(),"아니오를 선택했습니다.",Toast.LENGTH_LONG).show();
+                    }
+                });
+        builder.show();
+    }
 
 
 
