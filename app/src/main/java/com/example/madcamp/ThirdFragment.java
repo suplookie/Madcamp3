@@ -2,11 +2,16 @@ package com.example.madcamp;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,14 +26,19 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class ThirdFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
-    private GoogleMap map;
+    static GoogleMap map;
 
     public static ThirdFragment newInstance() {
         Bundle args = new Bundle();
@@ -46,10 +56,16 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState);
     }
 
+    FloatingActionButton fab;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.thirdfragment, container, false);
+
+        fab = rootView.findViewById(R.id.fab_refresh);
+
+
+
 
         MapsInitializer.initialize(getActivity());
         mapView = rootView.findViewById(R.id.map);
@@ -65,15 +81,47 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
 
         LatLng SEOUL = new LatLng(37.56, 126.97);
 
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(SEOUL);
-        markerOptions.title("서울");
-        markerOptions.snippet("한국의 수도");
-        map.addMarker(markerOptions);
 
         map.moveCamera(CameraUpdateFactory.newLatLng(SEOUL));
-        map.animateCamera(CameraUpdateFactory.zoomTo(10));
+
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (MainActivity.list != null && MainActivity.coords != null && MainActivity.coords.size() != 0) {
+                    for (int i = 0; i < MainActivity.list.size(); i++) {
+                        if (MainActivity.coords.get(i).valid) {
+                            LatLng latLng = MainActivity.coords.get(i).getLatLng();
+                            Uri uri = MainActivity.list.get(i);
+                            Bitmap bitmap = null;
+                            try {
+                                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 150, 150, false);
+
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions
+                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                    .position(latLng);
+
+                            map.addMarker(markerOptions);
+                        }
+
+                    }
+                }
+                else Toast.makeText(getActivity(), "bundle null", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
     }
+
+
+
     @Override
     public void onPause() {
         super.onPause();
