@@ -1,12 +1,22 @@
 package com.example.madcamp;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -14,18 +24,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
     private static final String TAG = "RecyclerViewAdapter";
@@ -35,6 +51,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private ArrayList<String> mPhoneNo = new ArrayList<>();
     static ArrayList<String> mLocation = new ArrayList<>();
     private Context mContext;
+    int i = 0;
 
 
     public RecyclerViewAdapter(Context Context, ArrayList<String> ImageNames, ArrayList<Bitmap> Images, ArrayList<String> PhoneNo, ArrayList<String> Location) {
@@ -54,7 +71,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
             Log.d(TAG, "onBindViewHolder: called.");
 
             holder.getAdapterPosition();
@@ -68,21 +85,54 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 holder.imageName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
             }
             holder.phoneNo.setText(mPhoneNo.get(position));
+            if (mPhoneNo.get(position) == "ADD PHONE NUMBER") {
+                holder.phoneNo.setTextColor(ContextCompat.getColor(mContext, R.color.no_number));
+                holder.phoneNo.setAlpha(0.2f);
+            }
+
             holder.parentLayout.setOnClickListener(new View.OnClickListener() {
-
                 @Override
-                public void onClick(View view) {
+                public void onClick(final View view) {
+                    i++;
 
-                    Log.d(TAG, "onClick : clicked on : " + mLocation.get(position));
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (i==1){
+                                Log.d(TAG, "onClick : clicked on : " + mLocation.get(position));
 
-                    Toast.makeText(mContext, mLocation.get(position).substring(0, mLocation.get(position).length()-8), Toast.LENGTH_SHORT).show();
+                                if(mLocation.get(position) == "NO ADDRESS ADDED") {
+                                    Toast.makeText(mContext, mLocation.get(position), LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(mContext, mLocation.get(position).substring(0, mLocation.get(position).length() - 8), LENGTH_SHORT).show();
+                                    openContactMaps(view, mLocation, position);
+                                }
+                            }else if (i==2){
+                                Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(mPhoneNo.get(position)));
+                                String[] projection = new String[]{ ContactsContract.PhoneLookup._ID };
 
-                    openContactMaps(view, mLocation, position);
+                                Cursor cur = mContext.getContentResolver().query(uri, projection, null, null, null);
 
+                                if (cur != null && cur.moveToNext()) {
+                                    Long id = cur.getLong(0);
+
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    Uri contactUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(id));
+                                    intent.setData(contactUri);
+                                    mContext.startActivity(intent);
+
+                                    cur.close();
+                                }
+                            }
+                            i=0;
+                        }
+                    }, 200);
                 }
             });
 
     }
+
 
     public void openContactMaps(View view, ArrayList<String> mLocation, int position){
         String location = mLocation.get(position);
@@ -112,4 +162,5 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             parentLayout = itemView.findViewById(R.id.parent_layout);
         }
     }
+
 }

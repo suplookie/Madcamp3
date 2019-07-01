@@ -28,12 +28,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class FirstFragment extends Fragment {
 
@@ -56,7 +59,7 @@ public class FirstFragment extends Fragment {
     FloatingActionButton menu;
     FloatingActionButton read_contacts;
     FloatingActionButton add_contacts;
-    FloatingActionButton refresh;
+    FloatingActionButton deleteAll;
     boolean isMenuOpen = false;
     boolean isContactRead = false;
 
@@ -87,7 +90,8 @@ public class FirstFragment extends Fragment {
         menu = rootView.findViewById(R.id.menu);
         read_contacts = rootView.findViewById(R.id.read_contact);
         add_contacts = rootView.findViewById(R.id.add_contact);
-        refresh = rootView.findViewById(R.id.refresh);
+        deleteAll = rootView.findViewById(R.id.deleteAll);
+        deleteAll.hide();
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,7 +133,7 @@ public class FirstFragment extends Fragment {
             }
         });
 
-        refresh.setOnClickListener(new View.OnClickListener(){
+        deleteAll.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 mImage.clear();
@@ -172,10 +176,14 @@ public class FirstFragment extends Fragment {
             Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                     ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id},null);
 
-            while (phoneCursor.moveToNext()){
+
+            if (phoneCursor.moveToNext()) {
                 String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 mPhoneNo.add(phoneNumber);
+            }else {
+                mPhoneNo.add("ADD PHONE NUMBER");
             }
+
 
 
             Bitmap photo = BitmapFactory.decodeResource(getActivity().getResources(), R.id.image);
@@ -185,40 +193,47 @@ public class FirstFragment extends Fragment {
 
             if (inputStream != null) {
                 photo = BitmapFactory.decodeStream(inputStream);
+                mImage.add(photo);
+            }else{
+                photo = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sharp_person_outline_black_48dp);
+                mImage.add(photo);
             }
-            mImage.add(photo);
+
 
 
             Uri postal_uri = ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI;
             Cursor postal_cursor  = getActivity().getContentResolver().query(postal_uri,null,  ContactsContract.Data.CONTACT_ID + "="+ id.toString(), null,null);
-            while(postal_cursor.moveToNext())
-            {
+
+            if (postal_cursor.moveToNext()) {
                 String Strt = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET));
                 String Cty = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.CITY));
                 String cntry = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY));
-                mLocation.add(Strt+Cty+cntry);
+                mLocation.add(Strt + Cty + cntry);
+            } else {
+                   mLocation.add("NO ADDRESS ADDED");
             }
-
-
         }
-    }
+
+}
 
 
     private void menuOpen(){
         if(!isMenuOpen){
             add_contacts.animate().translationY(-getResources().getDimension(R.dimen.add_contact));
             read_contacts.animate().translationY(-getResources().getDimension(R.dimen.read_contacts));
-            refresh.animate().translationX(-getResources().getDimension(R.dimen.refresh));
+            deleteAll.show();
 
             isMenuOpen = true;
         } else {
             add_contacts.animate().translationY(0);
             read_contacts.animate().translationY(0);
-            refresh.animate().translationX(0);
+            deleteAll.hide();
 
             isMenuOpen = false;
         }
     }
+
+
 
 
 

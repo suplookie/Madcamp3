@@ -7,6 +7,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -35,10 +42,14 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.gun0912.tedpermission.TedPermission;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -93,12 +104,6 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(final GoogleMap map) {
 
-        LatLng SEOUL = new LatLng(37.56, 126.97);
-
-
-        map.moveCamera(CameraUpdateFactory.newLatLng(SEOUL));
-
-
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,7 +120,7 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
                                 e.printStackTrace();
                             }
 
-                            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 150, 150, false);
+                            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
 
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions
@@ -124,15 +129,63 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
 
                             map.addMarker(markerOptions);
                         }
-
                     }
                 }
-                else Toast.makeText(getActivity(), "bundle null", Toast.LENGTH_SHORT).show();
+
+                if (mImage != null && mLocation != null && mLocation.size() != 0) {
+                    for (int i = 0; i < mImage.size(); i++) {
+                        String locationName = mLocation.get(i);
+                        LatLng latLng = new LatLng(getLocate(locationName).getLatitude(), getLocate(locationName).getLongitude());
+                        Bitmap bitmap = null;
+                        bitmap = mImage.get(i);
+                        Bitmap circleBitmap = getCroppedBitmap(bitmap);
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions
+                                .icon(BitmapDescriptorFactory.fromBitmap(circleBitmap))
+                                .position(latLng);
+                        map.addMarker(markerOptions);
+                    }
+                }
             }
         });
-
-
     }
+
+    private Address getLocate(String locationName){
+        Geocoder geocoder = new Geocoder(getActivity());
+        List<Address> list = new ArrayList<>();
+        try{
+            list = geocoder.getFromLocationName(locationName, 1);
+        }catch (IOException e){
+            Log.e(TedPermission.TAG, "geoLocate : IOEXCEPTION : "+e.getMessage());
+        }
+        Address address = list.get(0);
+        return address;
+    }
+
+    public Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
+    }
+
+
+
     @Override
     public void onPause() {
         super.onPause();
@@ -164,24 +217,7 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
     public void onDestroyView() {
         super.onDestroyView();
     }
-/*
-    private void getLocate(){
-        String searchString = ;
-
-        Geocoder geocoder = new Geocoder(getActivity());
-        List<Address> list = new ArrayList<>();
-        try{
-            list = geocoder.getFromLocationName(searchString, 1);
-        }catch (IOException e){
-            Log.e(TedPermission.TAG, "geoLocate : IOEXCEPTION : "+e.getMessage());
-        }
-        if(list.size()>0){
-            Address address = list.get(0);
-            Log.d(TedPermission.TAG, "geoLocate: found a location : " + address.toString());
-        }
-    }
-*/
-    private void LoadContacts() {
+    private void LoadContacts(){
 
         mNames.clear();
         mPhoneNo.clear();
@@ -191,20 +227,25 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
         Log.d(TAG, "iniImageBitmaps : preparing bitmaps.");
 
         ContentResolver resolver = getActivity().getContentResolver();
-        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        Cursor cursor = resolver.query(ContactsContract.Contacts.CONTENT_URI, null,null, null, null);
 
-        while (cursor.moveToNext()) {
+        while(cursor.moveToNext()){
             String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
             String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             mNames.add(name);
 
             Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id},null);
 
-            while (phoneCursor.moveToNext()) {
+
+            if (phoneCursor.moveToNext()) {
                 String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 mPhoneNo.add(phoneNumber);
+            }else {
+                mPhoneNo.add("NO PHONE NUMBER ADDED");
             }
+
+
 
             Bitmap photo = BitmapFactory.decodeResource(getActivity().getResources(), R.id.image);
 
@@ -213,17 +254,26 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
 
             if (inputStream != null) {
                 photo = BitmapFactory.decodeStream(inputStream);
+                mImage.add(photo);
+            }else{
+                photo = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.sharp_person_outline_black_48dp);
+                mImage.add(Bitmap.createScaledBitmap(photo,100,100,false));
             }
-            mImage.add(photo);
+
+
 
             Uri postal_uri = ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI;
-            Cursor postal_cursor = getActivity().getContentResolver().query(postal_uri, null, ContactsContract.Data.CONTACT_ID + "=" + id.toString(), null, null);
-            while (postal_cursor.moveToNext()) {
+            Cursor postal_cursor  = getActivity().getContentResolver().query(postal_uri,null,  ContactsContract.Data.CONTACT_ID + "="+ id.toString(), null,null);
+
+            if (postal_cursor.moveToNext()) {
                 String Strt = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET));
                 String Cty = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.CITY));
                 String cntry = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY));
                 mLocation.add(Strt + Cty + cntry);
+            } else {
+                mLocation.add("Antarctica");
             }
         }
+
     }
 }

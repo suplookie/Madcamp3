@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static ArrayList<Uri> list;
     public static ArrayList<MapCoord> coords;
+    public static ArrayList<Uri> contactList;
+    public static ArrayList<MapCoord> contactCoords;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,35 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 break ;
             case 2 :
                 fab.hide();
-
-                if (MainActivity.list != null && MainActivity.coords != null && MainActivity.coords.size() != 0 && ThirdFragment.map != null) {
-                    for (int i = 0; i < MainActivity.list.size(); i++) {
-                        if (MainActivity.coords.get(i).valid) {
-                            LatLng latLng = MainActivity.coords.get(i).getLatLng();
-                            Uri uri = MainActivity.list.get(i);
-                            Bitmap bitmap = null;
-                            try {
-                                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 150, 150, false);
-
-                            MarkerOptions markerOptions = new MarkerOptions();
-                            markerOptions
-                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-                                    .position(latLng);
-
-                            ThirdFragment.map.addMarker(markerOptions);
-                        }
-
-                    }
-                    //}
-                }
-
-
-
                 break ;
         }
     }
