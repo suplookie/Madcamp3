@@ -1,10 +1,13 @@
 package com.example.madcamp;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class MapCoord {
+import com.google.android.gms.maps.model.LatLng;
+
+public class MapCoord implements Parcelable {
     boolean valid = false;
+
     private LatLng latLng;
 
     public LatLng getLatLng() {
@@ -13,5 +16,15 @@ public class MapCoord {
 
     public void setLatLng(LatLng latLng) {
         this.latLng = latLng;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+
     }
 }

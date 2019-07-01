@@ -43,8 +43,6 @@ public class SecondFragment extends Fragment {
 
     private static final int PICK_FROM_ALBUM = 1;
     private static final int PICK_FROM_CAMERA= 2;
-    private ArrayList<Uri> list;
-    private ArrayList<MapCoord> coords;
     private String mCurrentPhotoPath;
     private FloatingActionButton fab_img;
     private FloatingActionButton fab_cam;
@@ -75,8 +73,8 @@ public class SecondFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_second, container, false);
         tedPermission();
 
-        list = new ArrayList<>();
-        coords = new ArrayList<>();
+        MainActivity.list = new ArrayList<>();
+        MainActivity.coords = new ArrayList<>();
 
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
@@ -90,7 +88,7 @@ public class SecondFragment extends Fragment {
         recyclerView.setLayoutManager(mGridLayoutManager);
 
         // 리사이클러뷰에 CardAdapter 객체 지정.
-        adapter = new CardAdapter(list, coords) ;
+        adapter = new CardAdapter(MainActivity.list, MainActivity.coords) ;
 
         AppBarLayout appBar = activity.findViewById(R.id.appbar);
         appBar.setOnClickListener(new View.OnClickListener() {
@@ -187,25 +185,27 @@ public class SecondFragment extends Fragment {
             return;
         }
 
+        MapCoord coord = new MapCoord();
         photoURI = imgUri;
 
         switch (requestCode){
             case 3000 : {
-                LatLng latLng;
+                coord = new MapCoord();
                 if (data.getExtras() != null) {
                     if (data.getExtras().getParcelable("latLng") != null) {
+                        LatLng latLng;
                         latLng = data.getExtras().getParcelable("latLng");
-                        coords.remove(coords.size() - 1);
-                        MapCoord mapCoord = new MapCoord();
-                        mapCoord.setLatLng(latLng);
-                        mapCoord.valid = true;
-                        coords.add(mapCoord);
-                        adapter.notifyDataSetChanged();
-                        Toast.makeText(activity, mapCoord.getLatLng().latitude + " " + mapCoord.getLatLng().longitude, Toast.LENGTH_SHORT).show();
-                        if (coords.size() != list.size())
+                        MainActivity.coords.remove(MainActivity.coords.size() - 1);
+                        coord.setLatLng(latLng);
+                        coord.valid = true;
+                        MainActivity.coords.add(coord);
+                        Toast.makeText(activity, coord.getLatLng().latitude + " " + coord.getLatLng().longitude, Toast.LENGTH_SHORT).show();
+
+                        if (MainActivity.coords.size() != MainActivity.list.size())
                             Toast.makeText(activity, "Something went wrong", Toast.LENGTH_SHORT).show();
                     }
                 }
+                adapter.notifyDataSetChanged();
                 return;
 
             }
@@ -216,7 +216,7 @@ public class SecondFragment extends Fragment {
                     try{
                         photoURI = data.getData();
                         //이미지뷰에 이미지 셋팅
-                        if (!list.add(photoURI))
+                        if (!MainActivity.list.add(photoURI))
                             Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
                     }catch (Exception e){
                         e.printStackTrace();
@@ -231,7 +231,7 @@ public class SecondFragment extends Fragment {
                     Log.v("알림", "FROM_CAMERA 처리");
                     galleryAddPic();
                 //이미지뷰에 이미지셋팅
-                    if (!list.add(imgUri))
+                    if (!MainActivity.list.add(imgUri))
                         Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
                 }catch (Exception e){
                     e.printStackTrace();
@@ -239,7 +239,6 @@ public class SecondFragment extends Fragment {
                 break;
             }
         }
-        MapCoord coord = new MapCoord();
         InputStream in = null;
         ExifInterface exif = null;
         try {
@@ -273,8 +272,10 @@ public class SecondFragment extends Fragment {
             showDialog();
         }
 
-        coords.add(coord);
+        MainActivity.coords.add(coord);
         adapter.notifyDataSetChanged();
+
+
 
 
 
@@ -370,7 +371,7 @@ public class SecondFragment extends Fragment {
         Double S1 = Double.valueOf(stringS[1]);
         Double FloatS = S0/S1;
 
-        result = Double.valueOf(FloatD + (FloatM/60) + (FloatS/3600));
+        result = FloatD + (FloatM / 60) + (FloatS / 3600);
 
         return result;
 
@@ -396,8 +397,5 @@ public class SecondFragment extends Fragment {
                 });
         builder.show();
     }
-
-
-
 
 }

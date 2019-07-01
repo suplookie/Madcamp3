@@ -1,21 +1,17 @@
 package com.example.madcamp;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,17 +26,13 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.gun0912.tedpermission.TedPermission;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
-import static java.lang.System.in;
 
 
 public class ThirdFragment extends Fragment implements OnMapReadyCallback {
@@ -69,29 +61,68 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState);
     }
 
+    FloatingActionButton fab;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.thirdfragment, container, false);
 
+        fab = rootView.findViewById(R.id.fab_refresh);
         LoadContacts();
+
+
+
 
         MapsInitializer.initialize(getActivity());
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
 
         mapView.getMapAsync(this);
-/*
-        for (String name : mNames){
-            MarkerOptions marker = new MarkerOptions()
-                    .position(LatLng);
-        }
-*/
+
         return rootView;
     }
 
     @Override
     public void onMapReady(final GoogleMap map) {
+
+        LatLng SEOUL = new LatLng(37.56, 126.97);
+
+
+        map.moveCamera(CameraUpdateFactory.newLatLng(SEOUL));
+
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (MainActivity.list != null && MainActivity.coords != null && MainActivity.coords.size() != 0) {
+                    for (int i = 0; i < MainActivity.list.size(); i++) {
+                        if (MainActivity.coords.get(i).valid) {
+                            LatLng latLng = MainActivity.coords.get(i).getLatLng();
+                            Uri uri = MainActivity.list.get(i);
+                            Bitmap bitmap = null;
+                            try {
+                                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, 150, 150, false);
+
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions
+                                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
+                                    .position(latLng);
+
+                            map.addMarker(markerOptions);
+                        }
+
+                    }
+                }
+                else Toast.makeText(getActivity(), "bundle null", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
     }
     @Override
