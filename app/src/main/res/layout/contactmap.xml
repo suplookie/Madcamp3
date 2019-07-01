@@ -39,6 +39,7 @@
             android:textColor="#000"
             android:id="@+id/input_search"
             android:background="@null"
+            android:inputType="text"
             android:imeOptions="actionSearch"/>
 
     </RelativeLayout>
