@@ -1,44 +1,43 @@
 package com.example.madcamp;
 
-        import android.Manifest;
-        import android.app.Activity;
-        import android.content.ClipData;
-        import android.content.Context;
-        import android.content.DialogInterface;
-        import android.content.Intent;
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 
-        import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
-        import android.net.Uri;
-        import android.os.Bundle;
-        import android.os.Environment;
-        import android.provider.MediaStore;
-        import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.Toast;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
-        import androidx.annotation.NonNull;
-        import androidx.core.content.FileProvider;
-        import androidx.exifinterface.media.ExifInterface;
-        import androidx.fragment.app.Fragment;
-        import androidx.recyclerview.widget.GridLayoutManager;
-        import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-        import com.google.android.gms.maps.model.LatLng;
-        import com.google.android.material.appbar.AppBarLayout;
-        import com.google.android.material.floatingactionbutton.FloatingActionButton;
-        import com.gun0912.tedpermission.PermissionListener;
-        import com.gun0912.tedpermission.TedPermission;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.gun0912.tedpermission.PermissionListener;
+import com.gun0912.tedpermission.TedPermission;
 
-        import java.io.File;
-        import java.io.FileNotFoundException;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.util.ArrayList;
-        import java.util.List;
-        import java.util.Objects;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class SecondFragment extends Fragment {
 
@@ -187,7 +186,6 @@ public class SecondFragment extends Fragment {
         //앨범 열기
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_FROM_ALBUM);
 
@@ -228,55 +226,6 @@ public class SecondFragment extends Fragment {
 
             case PICK_FROM_ALBUM : {
                 //앨범에서 가져오기
-                Uri uri = data.getData();
-                ClipData clipData = data.getClipData();
-                if (clipData != null) {
-                    for (int i = 0; i < clipData.getItemCount(); i++) {
-                        Uri clipUri = clipData.getItemAt(i).getUri();
-
-                        InputStream in;
-                        ExifInterface exif = null;
-                        try {
-                            in = activity.getContentResolver().openInputStream(clipUri);
-                            exif = new ExifInterface(in);
-
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-
-                        Double lat, lng;
-                        if (latitude != null && longitude != null) {
-                            coord.valid = true;
-                            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
-                                lng = convertToDegree(longitude);
-                            else
-                                lng = 0 - convertToDegree(longitude);
-
-                            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
-                                lat = convertToDegree(latitude);
-                            else
-                                lat = 0 - convertToDegree(latitude);
-                            coord.setLatLng(new LatLng(lat, lng));
-                        }
-                        MainActivity.list.add(clipUri);
-                        MainActivity.coords.add(coord);
-                    }
-                    adapter.notifyDataSetChanged();
-                    return;
-                }
-                else if (uri != null) {
-                    photoURI = data.getData();
-                    MainActivity.list.add(uri);
-                }
-
-
-
-                /*
                 if(data.getData()!=null){
                     try{
                         photoURI = data.getData();
@@ -287,7 +236,7 @@ public class SecondFragment extends Fragment {
                         e.printStackTrace();
                         Log.v("알림","앨범에서 가져오기 에러");
                     }
-                }*/
+                }
                 break;
             }
             case PICK_FROM_CAMERA: {
@@ -295,7 +244,7 @@ public class SecondFragment extends Fragment {
                 try{
                     Log.v("알림", "FROM_CAMERA 처리");
                     galleryAddPic();
-                //이미지뷰에 이미지셋팅
+                    //이미지뷰에 이미지셋팅
                     if (!MainActivity.list.add(imgUri))
                         Toast.makeText(activity, "list add failed", Toast.LENGTH_SHORT).show();
                 }catch (Exception e){

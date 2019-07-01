@@ -136,15 +136,21 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
                 if (mImage != null && mLocation != null && mLocation.size() != 0) {
                     for (int i = 0; i < mImage.size(); i++) {
                         String locationName = mLocation.get(i);
-                        LatLng latLng = new LatLng(getLocate(locationName).getLatitude(), getLocate(locationName).getLongitude());
-                        Bitmap bitmap = null;
-                        bitmap = mImage.get(i);
-                        Bitmap circleBitmap = getCroppedBitmap(bitmap);
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions
-                                .icon(BitmapDescriptorFactory.fromBitmap(circleBitmap))
-                                .position(latLng);
-                        map.addMarker(markerOptions);
+                        LatLng latLng;
+                        if (getLocate(locationName) == null) {
+                            latLng = null;
+                        }
+                        else {
+                            latLng = new LatLng(getLocate(locationName).getLatitude(), getLocate(locationName).getLongitude());
+                            Bitmap bitmap = null;
+                            bitmap = mImage.get(i);
+                            Bitmap circleBitmap = getCroppedBitmap(bitmap);
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions
+                                    .icon(BitmapDescriptorFactory.fromBitmap(circleBitmap))
+                                    .position(latLng);
+                            map.addMarker(markerOptions);
+                        }
                     }
                 }
             }
@@ -158,6 +164,9 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
             list = geocoder.getFromLocationName(locationName, 1);
         }catch (IOException e){
             Log.e(TedPermission.TAG, "geoLocate : IOEXCEPTION : "+e.getMessage());
+        }
+        if (list.isEmpty()) {
+            return null;
         }
         Address address = list.get(0);
         return address;
