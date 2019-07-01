@@ -2,6 +2,7 @@ package com.example.madcamp;
 
         import android.Manifest;
         import android.app.Activity;
+        import android.content.ClipData;
         import android.content.Context;
         import android.content.DialogInterface;
         import android.content.Intent;
@@ -186,6 +187,7 @@ public class SecondFragment extends Fragment {
         //앨범 열기
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_FROM_ALBUM);
 
@@ -226,6 +228,55 @@ public class SecondFragment extends Fragment {
 
             case PICK_FROM_ALBUM : {
                 //앨범에서 가져오기
+                Uri uri = data.getData();
+                ClipData clipData = data.getClipData();
+                if (clipData != null) {
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        Uri clipUri = clipData.getItemAt(i).getUri();
+
+                        InputStream in;
+                        ExifInterface exif = null;
+                        try {
+                            in = activity.getContentResolver().openInputStream(clipUri);
+                            exif = new ExifInterface(in);
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        String longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+                        String latitude = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+
+                        Double lat, lng;
+                        if (latitude != null && longitude != null) {
+                            coord.valid = true;
+                            if (exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF).equals("E"))
+                                lng = convertToDegree(longitude);
+                            else
+                                lng = 0 - convertToDegree(longitude);
+
+                            if (exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF).equals("N"))
+                                lat = convertToDegree(latitude);
+                            else
+                                lat = 0 - convertToDegree(latitude);
+                            coord.setLatLng(new LatLng(lat, lng));
+                        }
+                        MainActivity.list.add(clipUri);
+                        MainActivity.coords.add(coord);
+                    }
+                    adapter.notifyDataSetChanged();
+                    return;
+                }
+                else if (uri != null) {
+                    photoURI = data.getData();
+                    MainActivity.list.add(uri);
+                }
+
+
+
+                /*
                 if(data.getData()!=null){
                     try{
                         photoURI = data.getData();
@@ -236,7 +287,7 @@ public class SecondFragment extends Fragment {
                         e.printStackTrace();
                         Log.v("알림","앨범에서 가져오기 에러");
                     }
-                }
+                }*/
                 break;
             }
             case PICK_FROM_CAMERA: {
