@@ -18,6 +18,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     private ArrayList<Uri> mData;
     private ArrayList<MapCoord> coords;
+    static ArrayList<Card> cards;
     Context context;
 
     //생성자
@@ -25,6 +26,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     {
         this.mData = list ;
         this.coords = coordList;
+        this.cards = new ArrayList<>();
 
     }
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -35,6 +37,33 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             card = new Card();
 
             card.img = itemView.findViewById(R.id.card_image);
+            card.img.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+
+                    if (!card.clicked) {
+                        SecondFragment.delete_fab.show();
+                        card.clicked = true;
+                        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+                        layoutParams.width = (int) (layoutParams.width / 1.1);
+                        layoutParams.height = (int) (layoutParams.height / 1.1);
+                        view.setLayoutParams(layoutParams);
+                        cards.add(card);
+                    }
+                    else {
+                        card.clicked = false;
+                        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+                        layoutParams.width = (int) (layoutParams.width * 1.1);
+                        layoutParams.height = (int) (layoutParams.height * 1.1);
+                        view.setLayoutParams(layoutParams);
+                        cards.remove(card);
+                        if (cards.isEmpty())
+                            SecondFragment.delete_fab.hide();
+                    }
+                    return true;
+                }
+            });
+
             card.img.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -72,6 +101,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull CardAdapter.ViewHolder holder, int position) {
         holder.card.img.setImageURI(this.mData.get(position));
         holder.card.index = position;
+        holder.card.coord = this.coords.get(position);
+        holder.card.uri = this.mData.get(position);
     }
 
     @Override
@@ -79,9 +110,12 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         return mData.size() ;
     }
 
-    private class Card {
+    class Card {
         ImageView img;
         int index;
+        boolean clicked = false;
+        Uri uri;
+        MapCoord coord;
     }
 
 }

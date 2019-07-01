@@ -107,6 +107,7 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                map.clear();
 
                 if (MainActivity.list != null && MainActivity.coords != null && MainActivity.coords.size() != 0) {
                     for (int i = 0; i < MainActivity.list.size(); i++) {
