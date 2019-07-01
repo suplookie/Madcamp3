@@ -128,6 +128,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                             i=0;
                         }
                     }, 200);
+                    FirstFragment.isContactRead = false;
                 }
             });
 

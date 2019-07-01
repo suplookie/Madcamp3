@@ -61,7 +61,7 @@ public class FirstFragment extends Fragment {
     FloatingActionButton add_contacts;
     FloatingActionButton deleteAll;
     boolean isMenuOpen = false;
-    boolean isContactRead = false;
+    static boolean isContactRead = false;
 
     private String StopClickingReadContact = "Contact has been already loaded";
 
