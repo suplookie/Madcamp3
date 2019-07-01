@@ -1,11 +1,16 @@
 package com.example.madcamp;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,13 +37,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 
 public class ThirdFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mapView;
-    private GoogleMap map;
+    public static GoogleMap map;
 
     private ArrayList<String> mNames = new ArrayList<>();
     private ArrayList<Bitmap> mImage = new ArrayList<Bitmap>();
