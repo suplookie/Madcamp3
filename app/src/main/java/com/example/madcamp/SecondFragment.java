@@ -49,6 +49,7 @@ public class SecondFragment extends Fragment {
     private CardAdapter adapter;
     private boolean isMenuOpen = false;
     private Uri imgUri, photoURI;
+    static FloatingActionButton delete_fab;
 
     public static SecondFragment newInstance() {
         Bundle args = new Bundle();
@@ -75,6 +76,19 @@ public class SecondFragment extends Fragment {
 
         MainActivity.list = new ArrayList<>();
         MainActivity.coords = new ArrayList<>();
+        delete_fab = view.findViewById(R.id.fab_delete);
+        delete_fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                while (!CardAdapter.cards.isEmpty()) {
+                    MainActivity.list.remove(CardAdapter.cards.get(0).uri);
+                    MainActivity.coords.remove(CardAdapter.cards.get(0).coord);
+                    CardAdapter.cards.remove(0);
+                }
+                delete_fab.hide();
+                adapter.notifyDataSetChanged();
+            }
+        });
 
 
         // 리사이클러뷰에 LinearLayoutManager 객체 지정.
