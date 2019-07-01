@@ -136,6 +136,7 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
                 if (mImage != null && mLocation != null && mLocation.size() != 0) {
                     for (int i = 0; i < mImage.size(); i++) {
                         String locationName = mLocation.get(i);
+                        if (getLocate(locationName) == null) continue;
                         LatLng latLng = new LatLng(getLocate(locationName).getLatitude(), getLocate(locationName).getLongitude());
                         Bitmap bitmap = null;
                         bitmap = mImage.get(i);
@@ -156,6 +157,7 @@ public class ThirdFragment extends Fragment implements OnMapReadyCallback {
         List<Address> list = new ArrayList<>();
         try{
             list = geocoder.getFromLocationName(locationName, 1);
+            if (list.isEmpty())return null;
         }catch (IOException e){
             Log.e(TedPermission.TAG, "geoLocate : IOEXCEPTION : "+e.getMessage());
         }
